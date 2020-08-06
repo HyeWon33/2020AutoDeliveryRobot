@@ -71,11 +71,12 @@ def arucomark(mtx, dist):
 
                 for i in range(0, ids.size):
                     rvecs_msg_x = rvecs_msg[i][0][0]
-                    rvecs_msg_y = rvecs_msg[i][0][0]
-                    rvecs_msg_z = rvecs_msg[i][0][0]
+                    rvecs_msg_y = rvecs_msg[i][0][1]
+                    rvecs_msg_z = rvecs_msg[i][0][2]
                     tvecs_msg_x = tvecs_msg[i][0][0]
-                    tvecs_msg_y = tvecs_msg[i][0][0]
-                    tvecs_msg_z = tvecs_msg[i][0][0]
+                    tvecs_msg_y = tvecs_msg[i][0][1]
+                    tvecs_msg_z = tvecs_msg[i][0][2]
+                    print("rvecs", rvecs)
     
                     aruco.r_x = rvecs_msg_x
                     aruco.r_y = rvecs_msg_y

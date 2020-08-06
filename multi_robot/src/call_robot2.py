@@ -14,7 +14,7 @@ class Random_Pose():
         self.nav_pub = rospy.Publisher("tb3_1/move_base_simple/goal",PoseStamped,queue_size=10)
         self.nav_goal = PoseStamped()
         self.sub = rospy.Subscriber('tb3_0/odom', Odometry, self.get_rotation)
-        self.ddd = rospy.Subscriber('/starting',Int32,self.Start)
+        self.ddd = rospy.Subscriber('/call_frame',Int32,self.Start)
         self.a = 0
         self.start = 0
         self.quaternion = None
@@ -22,6 +22,7 @@ class Random_Pose():
     def Start(self, msg):
         #print(msg.data)
         self.start = msg.data
+        rospy.loginfo(self.start)
 
     def get_rotation(self, msg):
         pose_p = msg.pose.pose.position
@@ -70,7 +71,7 @@ class Random_Pose():
     def transe_quaternion(self,matrix):
         goal_x ,goal_y,goal_rad = self.get_params(matrix)
         goal_deg = (goal_rad * (180 / np.pi))
-        print("goal_x:{}\ngoal_y:{}\ngoal_theta:{}".format(goal_x,goal_y,goal_deg))
+        rospy.loginfo("goal_x:%f, goal_y:%f, goal_theta:%f" %(goal_x,goal_y,goal_deg))
         ox,oy,ow,oz = tf.transformations.quaternion_from_euler(goal_x, goal_y, goal_rad)
         self.quaternion = [goal_x,goal_y,ow,oz]
 
@@ -82,7 +83,7 @@ class Random_Pose():
         return x, y, theta
 
 def main():
-    rospy.init_node("call_robot2")
+    rospy.init_node("call_robot")
     rp = Random_Pose()
     rospy.spin()
 
