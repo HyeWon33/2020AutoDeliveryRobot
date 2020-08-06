@@ -1,2 +1,3 @@
-float32[] d
-
+float32 rvecs
+# float32 y
+# float32 z
