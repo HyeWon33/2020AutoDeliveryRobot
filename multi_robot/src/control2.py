@@ -11,7 +11,7 @@ from rospy.numpy_msg import numpy_msg
 
 class Control:
     def __init__(self):
-        rospy.init_node("control")
+        rospy.init_node("control_tower")
         self.servo_pub = rospy.Publisher('/servo', Int32, queue_size=10)
         self.mode_pub=rospy.Publisher('/mode_msg',Int32,queue_size=10) 
         self.mani_robot_stop_pub=rospy.Publisher('/mani_robot_stop',Int32,queue_size=10)#self_drive.py
@@ -168,3 +168,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -71,7 +71,7 @@ class Random_Pose():
     def transe_quaternion(self,matrix):
         goal_x ,goal_y,goal_rad = self.get_params(matrix)
         goal_deg = (goal_rad * (180 / np.pi))
-        print("goal_x:{}\ngoal_y:{}\ngoal_theta:{}".format(goal_x,goal_y,goal_deg))
+        rospy.loginfo("goal_x:%f, goal_y:%f, goal_theta:%f" %(goal_x,goal_y,goal_deg))
         ox,oy,ow,oz = tf.transformations.quaternion_from_euler(goal_x, goal_y, goal_rad)
         self.quaternion = [goal_x,goal_y,ow,oz]
 
@@ -83,7 +83,7 @@ class Random_Pose():
         return x, y, theta
 
 def main():
-    rospy.init_node("call_robot2")
+    rospy.init_node("call_robot")
     rp = Random_Pose()
     rospy.spin()
 
