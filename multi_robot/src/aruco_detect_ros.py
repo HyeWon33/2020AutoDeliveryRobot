@@ -5,7 +5,6 @@ import glob
 import math
 import os
 import rospy
-from multi_robot.msg import Float32Multi
 from multi_robot.msg import aruco_msgs
 from std_msgs.msg import Float32
 from rospy.numpy_msg import numpy_msg
@@ -41,8 +40,6 @@ def cal():
 
             # Draw and display the corners
             cv2.drawChessboardCorners(img, (9, 6), corners, ret)
-            # cv2.imshow("img", img)
-            # cv2.waitKey(500)
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
     rospy.loginfo("===================================END CALIBRATION===================================")
     return mtx, dist
@@ -50,10 +47,7 @@ def cal():
 
 def arucomark(mtx, dist):
     rospy.loginfo("===================================START DETECT===================================")
-    # rvecs_pub = rospy.Publisher('/rvecs_msg', numpy_msg(Float32Multi), queue_size=10)
-    rvecs_pub = rospy.Publisher('rvecs_msg', aruco_msgs, queue_size=10)
-    # tvecs_pub = rospy.Publisher('/tvecs_msg', numpy_msg(Float32Multi), queue_size=10)
-    # id_pub = rospy.Publisher('/id_msg',numpy_msg(Float32Multi), queue_size=10)
+    aruco_pub = rospy.Publisher('aruco_msg', aruco_msgs, queue_size=10)
     aruco = aruco_msgs()
 
     aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
@@ -74,10 +68,8 @@ def arucomark(mtx, dist):
                 rvecs_msg = rvecs.tolist()
                 tvecs_msg = tvecs.tolist()
                 
-                # tvecs_pub.publish(tvecs)
-                # id_pub.publish(ids)
+
                 for i in range(0, ids.size):
-                    # print("Ddd",[rvecs, tvecs, ids])
                     rvecs_msg_x = rvecs_msg[i][0][0]
                     rvecs_msg_y = rvecs_msg[i][0][0]
                     rvecs_msg_z = rvecs_msg[i][0][0]
@@ -93,7 +85,7 @@ def arucomark(mtx, dist):
                     aruco.t_z = tvecs_msg_z
                     aruco.id = int(ids[i])
                     rospy.loginfo(aruco)
-                    rvecs_pub.publish(aruco)
+                    aruco_pub.publish(aruco)
                     
                     frame = cv2.aruco.drawAxis(frame, mtx, dist, rvecs[i], tvecs[i], 0.05)
 
