@@ -15,6 +15,7 @@ class SelfDrive:
         self.stop = 0
     def Stop(self,msg):
         self.stop = msg.data
+        rospy.loginfo(self.stop)
     def lds_callback(self, scan):
 
         avg_right = self.average(scan.ranges[300:360])

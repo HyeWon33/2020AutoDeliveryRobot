@@ -14,7 +14,7 @@ class Random_Pose():
         self.nav_pub = rospy.Publisher("tb3_1/move_base_simple/goal",PoseStamped,queue_size=10)
         self.nav_goal = PoseStamped()
         self.sub = rospy.Subscriber('tb3_0/odom', Odometry, self.get_rotation)
-        self.ddd = rospy.Subscriber('/starting',Int32,self.Start)
+        self.ddd = rospy.Subscriber('/call_frame',Int32,self.Start)
         self.a = 0
         self.start = 0
         self.quaternion = None
@@ -22,6 +22,7 @@ class Random_Pose():
     def Start(self, msg):
         #print(msg.data)
         self.start = msg.data
+        rospy.loginfo(self.start)
 
     def get_rotation(self, msg):
         pose_p = msg.pose.pose.position

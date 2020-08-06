@@ -13,12 +13,13 @@ class Random_Pose():
     def __init__(self):
         self.nav_pub = rospy.Publisher("tb3_1/move_base_simple/goal",PoseStamped,queue_size=10)
         self.nav_goal = PoseStamped()
-        self.ddd = rospy.Subscriber('/start',Int32,self.Start)
+        self.ddd = rospy.Subscriber('/return_frame_msg',Int32,self.Start)
         self.a = 0
         self.start = 0
 
     def Start(self, msg):
         self.start = msg.data
+        rospy.loginfo(self.start)
 
 
     def publish_middle_goal(self):
