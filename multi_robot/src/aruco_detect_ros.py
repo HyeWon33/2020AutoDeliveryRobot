@@ -6,10 +6,12 @@ import math
 import os
 import rospy
 from multi_robot.msg import Float32Multi
+from multi_robot.msg import aruco_msgs
 from std_msgs.msg import Float32
 from rospy.numpy_msg import numpy_msg
 
 def cal():
+    rospy.loginfo("===================================START CALIBRATION===================================")
     # termination criteria
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -21,7 +23,7 @@ def cal():
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
-    images = glob.glob('/home/j/catkin_ws/src/multi_robot/src/camera_cal_img/*.png')
+    images = glob.glob('/home/mun/catkin_ws/src/multi_robot/src/camera_cal_img/*.png')
 
     for fname in images:
         img = cv2.imread(fname)
@@ -42,47 +44,56 @@ def cal():
             # cv2.imshow("img", img)
             # cv2.waitKey(500)
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    rospy.loginfo("===================================END CALIBRATION===================================")
     return mtx, dist
 
 
 def arucomark(mtx, dist):
-    rvecs_pub = rospy.Publisher('/rvecs_msg', numpy_msg(Float32Multi), queue_size=10)
-    tvecs_pub = rospy.Publisher('/tvecs_msg', numpy_msg(Float32Multi), queue_size=10)
-    id_pub = rospy.Publisher('/id_msg',numpy_msg(Float32Multi), queue_size=10)
-    dddd= Float32Multi()
+    rospy.loginfo("===================================START DETECT===================================")
+    # rvecs_pub = rospy.Publisher('/rvecs_msg', numpy_msg(Float32Multi), queue_size=10)
+    rvecs_pub = rospy.Publisher('rvecs_msg', aruco_msgs, queue_size=10)
+    # tvecs_pub = rospy.Publisher('/tvecs_msg', numpy_msg(Float32Multi), queue_size=10)
+    # id_pub = rospy.Publisher('/id_msg',numpy_msg(Float32Multi), queue_size=10)
+    aruco = aruco_msgs()
 
     aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
     param = cv2.aruco.DetectorParameters_create()
     param.adaptiveThreshConstant = 10
     os.system('sudo modprobe bcm2835-v4l2')
     cam = cv2.VideoCapture(0)
-    trim_img = None
+
     if cam.isOpened():
         while True:
             _, frame = cam.read()
             gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             coners, ids, point = cv2.aruco.detectMarkers(gray_frame, aruco_dict, parameters=param)
-            #print("ids", ids)
 
             if np.all(ids != None):
                 # rvecs, tvecs, objpoint = cv2.aruco.estimatePoseSingleMarkers(coners, 0.05, mtx, dist)
                 rvecs, tvecs = cv2.aruco.estimatePoseSingleMarkers(coners, 0.05, mtx, dist)
-                rvecs_pub.publish(rvecs)
-                tvecs_pub.publish(tvecs)
-                id_pub.publish(ids)
+                rvecs_msg = rvecs.tolist()
+                tvecs_msg = tvecs.tolist()
+                
+                # tvecs_pub.publish(tvecs)
+                # id_pub.publish(ids)
                 for i in range(0, ids.size):
-                    print("Ddd",[rvecs, tvecs, ids])
-                    
-                    a= [list(rvecs[i][0] * 100),list(tvecs[i][0]),list(ids[i])]
-
-                    # print(rvecs[i][0][2] * 100)
-                    # print(tvecs[i][0][2])
-                    # print(ids)
-                    # print(i,a)
-
-                    # rvecs_pub.publish(rvecs[i][0][2]*100)
-                    # tvecs_pub.publish(tvecs[i][0][2])
-
+                    # print("Ddd",[rvecs, tvecs, ids])
+                    rvecs_msg_x = rvecs_msg[i][0][0]
+                    rvecs_msg_y = rvecs_msg[i][0][0]
+                    rvecs_msg_z = rvecs_msg[i][0][0]
+                    tvecs_msg_x = tvecs_msg[i][0][0]
+                    tvecs_msg_y = tvecs_msg[i][0][0]
+                    tvecs_msg_z = tvecs_msg[i][0][0]
+    
+                    aruco.r_x = rvecs_msg_x
+                    aruco.r_y = rvecs_msg_y
+                    aruco.r_z = rvecs_msg_z
+                    aruco.t_x = tvecs_msg_x
+                    aruco.t_y = tvecs_msg_y
+                    aruco.t_z = tvecs_msg_z
+                    aruco.id = int(ids[i])
+                    rospy.loginfo(aruco)
+                    rvecs_pub.publish(aruco)
                     
                     frame = cv2.aruco.drawAxis(frame, mtx, dist, rvecs[i], tvecs[i], 0.05)
 
@@ -98,7 +109,7 @@ def arucomark(mtx, dist):
 
 
 def main():
-    rospy.init_node("dfdfdf")
+    rospy.init_node("aruco_detect")
     mtx, dist = cal()
     arucomark(mtx, dist)
 
