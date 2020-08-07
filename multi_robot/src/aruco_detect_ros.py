@@ -65,6 +65,19 @@ def arucomark(mtx, dist):
             if np.all(ids != None):
                 # rvecs, tvecs, objpoint = cv2.aruco.estimatePoseSingleMarkers(coners, 0.05, mtx, dist)
                 rvecs, tvecs = cv2.aruco.estimatePoseSingleMarkers(coners, 0.05, mtx, dist)
+                rvecs_temp = np.squeeze(rvecs)
+                rotation_matrix = np.zeros((3,3))
+                cv2.Rodrigues(rvecs, rotation_matrix)
+                camera_matrix = rotation_matrix.T * tvecs * -1
+                camera_matrix = np.squeeze(camera_matrix)
+                # camera_vector = np.zeros((1, 3))
+                camera_vector, _ = cv2.Rodrigues(camera_matrix)
+                print(camera_vector)
+                # print(camera_vector)
+                # camera_mat = rvecs_mat * rvecs + tvecs
+                # camera_mat_t = rvecs.T
+                # camera_mat = camera_mat_t + tvecs
+                # print("camera:", camera_mat)
                 rvecs_msg = rvecs.tolist()
                 tvecs_msg = tvecs.tolist()
                 
@@ -76,7 +89,10 @@ def arucomark(mtx, dist):
                     tvecs_msg_x = tvecs_msg[i][0][0]
                     tvecs_msg_y = tvecs_msg[i][0][1]
                     tvecs_msg_z = tvecs_msg[i][0][2]
-                    print("rvecs", rvecs)
+                    rotation_vector_x = camera_vector[0]
+                    rotation_vector_y = camera_vector[1]
+                    rotation_vector_z = camera_vector[2]
+                    
     
                     aruco.r_x = rvecs_msg_x
                     aruco.r_y = rvecs_msg_y
@@ -84,6 +100,9 @@ def arucomark(mtx, dist):
                     aruco.t_x = tvecs_msg_x
                     aruco.t_y = tvecs_msg_y
                     aruco.t_z = tvecs_msg_z
+                    aruco.x = rotation_vector_x
+                    aruco.y = rotation_vector_y
+                    aruco.z = rotation_vector_z
                     aruco.id = int(ids[i])
                     rospy.loginfo(aruco)
                     aruco_pub.publish(aruco)
