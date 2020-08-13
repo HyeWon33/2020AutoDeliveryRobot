@@ -1,0 +1,38 @@
+1. bashrc에서 ip맞추기 ,ROS_NAMESPACE 정하기 지개 102 매니 97
+
+2.roscore
+
+3.ssh로 매니 접속
+
+4.아르코 마커노드 키
+
+5.ssh로 매니 접속
+
+6. roslaunch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:=tb3_1 set_lidar_frame_id:=tb3_1/base_scan
+
+[INFO] [1597128027.053218]: Setup TF on Odometry [tb3_1/odom]
+[INFO] [1597128027.069242]: Setup TF on IMU [tb3_1/imu_link]
+[INFO] [1597128027.079824]: Setup TF on MagneticField [tb3_1/mag_link]
+[INFO] [1597128027.103283]: Setup TF on JointState [tb3_1/base_link]
+
+킬때 이렇게 뜨는지 확인
+7.ssh로 지개 접속
+
+8. roslaunch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:=tb3_0 set_lidar_frame_id:=tb3_0/base_scan
+
+
+[INFO] [1597128027.053218]: Setup TF on Odometry [tb3_0/odom]
+[INFO] [1597128027.069242]: Setup TF on IMU [tb3_0/imu_link]
+[INFO] [1597128027.079824]: Setup TF on MagneticField [tb3_0/mag_link]
+[INFO] [1597128027.103283]: Setup TF on JointState [tb3_0/base_link]
+
+킬때 이렇게 뜨는지 확인
+
+5.ROS_NAMESPACE=tb3_1 roslaunch turtlebot3_manipulation_bringup turtlebot3_manipulation_bringup.launch
+6.ROS_NAMESPACE=tb3_1 roslaunch turtlebot3_manipulation_moveit_config move_group.launch 
+7.ROS_NAMESPACE=tb3_1 roslaunch turtlebot3_manipulation_gui turtlebot3_manipulation_gui.launch
+
+8.roslaunch turtlebot3_nps move_base_two.launch
+9.roslaunch turtlebot3_nps navigation_two.launch map_file:=$HOME/workspace/3x3.yaml
+
+10. rosrun multi_robot call_robot_.py
