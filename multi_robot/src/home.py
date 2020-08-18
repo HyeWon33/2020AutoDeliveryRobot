@@ -6,14 +6,14 @@ from move_base_msgs.msg import MoveBaseActionResult
 from std_msgs.msg import Int32
 import random
 
-GOAL_POSE = [ 0,  0, -1.0, 1.0]
+GOAL_POSE = [ 0,  0, 0, 1.0]
 
 
 class Random_Pose():
     def __init__(self):
-        self.nav_pub = rospy.Publisher("tb3_1/move_base_simple/goal",PoseStamped,queue_size=10)
+        self.nav_pub = rospy.Publisher("move_base_simple/goal",PoseStamped,queue_size=10)
         self.nav_goal = PoseStamped()
-        self.ddd = rospy.Subscriber('/return_frame_msg',Int32,self.Start)
+        self.ddd = rospy.Subscriber('return_frame_msg',Int32,self.Start)
         self.a = 0
         self.start = 0
 

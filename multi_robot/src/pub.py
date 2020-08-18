@@ -23,13 +23,13 @@ if __name__ == "__main__":
     settings = termios.tcgetattr(sys.stdin)
 
     rospy.init_node('test_pub')
-    pub_aruco_msg = rospy.Publisher('/aruco_msg', Int32, queue_size=10)
-    pub_id_msg = rospy.Publisher('/id_msg', Int32, queue_size=10)
-    pub_aruco_move = rospy.Publisher('/aruco_move', Int32, queue_size=10)
-    pub_home_fin = rospy.Publisher('/home_fin',Int32,queue_size=10)
-    pub_call_fin = rospy.Publisher('/call_fin', Int32, queue_size=10)
-    pub_Mani_state = rospy.Publisher('/Mani_state', Int32, queue_size=10)
-    pub_control_frame = rospy.Publisher('/control_frame',Int32,queue_size=10)
+    pub_aruco_msg = rospy.Publisher('aruco_msg', Int32, queue_size=10)
+    pub_id_msg = rospy.Publisher('id_msg', Int32, queue_size=10)
+    pub_aruco_move = rospy.Publisher('aruco_move', Int32, queue_size=10)
+    pub_home_fin = rospy.Publisher('return_frame_msg',Int32,queue_size=10)
+    pub_call_fin = rospy.Publisher('call_frame', Int32, queue_size=10)
+    pub_Mani_state = rospy.Publisher('Mani_state', Int32, queue_size=10)
+    pub_control_frame = rospy.Publisher('control_frame',Int32,queue_size=10)
 
     try:
         while (1):
