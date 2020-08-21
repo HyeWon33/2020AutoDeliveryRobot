@@ -28,83 +28,43 @@ class Random_Pose():
         self.sub = rospy.Subscriber('odom', Odometry, self.get_rotation)
         self.aruco_sub = rospy.Subscriber('rvecs_msg', aruco_msgs, self.callback1)
     def Start(self, msg):
-        # print(msg.data)
         self.start = msg.data
-        #rospy.loginfo(self.start)
 
     def callback1(self, aruco_data):
 
-        # rospy.loginfo("\nid:%d\nr_x:%f\n r_y:%f\n r_z:%f\nt_x:%f\n t_y:%f\n t_z:%f\n x:%f\n y:%f\n z:%f" % (
-        #     aruco_data.id, aruco_data.r_x, aruco_data.r_y, aruco_data.r_z, aruco_data.t_x, aruco_data.t_y,
-        #     aruco_data.t_z, aruco_data.x, aruco_data.y, aruco_data.z))
-        # rospy.loginfo("t_x:%f, t_y:%f, t_z:%f" % (aruco_data.t_x, aruco_data.t_y, aruco_data.t_z))
-        # rvecs_list = [aruco_data.r_x, aruco_data.r_y, aruco_data.r_z]
-        # tvecs_list = [aruco_data.t_x, aruco_data.t_y, aruco_data.t_z]
         self.rvecs = None
         self.tvecs = None
         self.rvecs = np.array([[aruco_data.r_x], [aruco_data.r_y], [aruco_data.r_z]])
         self.tvecs = np.array([[aruco_data.t_x], [aruco_data.t_y], [aruco_data.t_z]])
-        #rospy.loginfo(self.rvecs.shape)
-        rotation_matrix = np.zeros((3, 3))
-        #cv2.Rodrigues(self.rvecs, rotation_matrix)
-        cv2.Rodrigues(src=self.rvecs,dst=rotation_matrix)
-	#rotation_matrix = rotation_matrix.T
-	original_matrix = np.array([[1],[0],[0]])
-	
-	#original_matrix = original_matrix 
-	#original_matrix = original_matrix - self.tvecs
-	#print(original_matrix.shape)
-        camera_matrix = np.dot(rotation_matrix.T, original_matrix)
-	#camera_matrix = camera_matrix - self.tvecs.T
-	#print(camera_matrix.shape)
-	#print("rvecs:", self.rvecs)
-
-	#print("tvecs:", self.tvecs)
-	
-        self.camera_matrix = np.squeeze(camera_matrix)
-        #rospy.loginfo(self.camera_matrix)
-
+        print("sdfd")
     def get_rotation(self, msg):
         self.pose_p = msg.pose.pose.position
-
         self.orientation_q = msg.pose.pose.orientation
         orientation_q = self.orientation_q
         orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
         (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(orientation_list)
-	#rospy.loginfo(pose_p)
+
         self.Cul(self.pose_p.x,self.pose_p.y, yaw)
 
     def Cul(self, x, y, theta):
-        rospy.loginfo("x      : %f , y      : %f , theta      : %f " % (x, y, theta * (180 / np.pi)))
-        # rospy.loginfo("rve[0] : %f , rve[1] : %f , rve[2]     : %f " % (self.tvecs[0],self.tvecs[1],self.tvecs[2]))
-        # rospy.loginfo("self.tvecs[0] : %f, self.tvecs[2]:%f"%(self.tvecs[0],self.tvecs[2]))
 
-        # print(x,y,theta* (180 / np.pi))
         self.main_matrix = self.make_matrix(x, y, theta)
-        rospy.loginfo("main_matrix")
-        rospy.loginfo(self.main_matrix)
-        base_matrix = self.make_matrix(self.tvecs[2], self.tvecs[0], self.rvecs[1])
-        rospy.loginfo("base_matrix")
-        rospy.loginfo(base_matrix)
-        #fin_matrix = self.make_matrix(0.3, 0, 0)
+        # base_matrix = self.make_matrix(self.tvecs[2], -self.tvecs[0], self.rvecs[1])
 
-        zero_tp = self.cul_matrix(base_matrix)
-        move_tp = self.cul_matrix(self.main_matrix,base_matrix)
-        rospy.loginfo("move_tp")
-        rospy.loginfo(move_tp)
-	#rospy.loginfo(move_tp)
-        #fin_tp = self.cul_matrix(move_tp,fin_matrix)
-        zero_move_tp = self.cul_matrix(zero_tp, move_tp)
-        self.transe_quaternion(move_tp)
-        # print(goal_x,goal_y,goal_deg)
-        # print(self.quaternion)
+        # move_tp = self.cul_matrix(self.main_matrix,base_matrix)
+        # rospy.loginfo("move_tp")
+        # rospy.loginfo(move_tp)
+        # self.transe_quaternion(move_tp)
+        ar_pose = np.array([[self.tvecs[2], -self.tvecs[0],1]])
+        fin_pose = np.dot(self.main_matrix,ar_pose.T)
         self.nav_goal.header.frame_id = 'map'
-        self.nav_goal.pose.position.x = self.quaternion[0]
-        self.nav_goal.pose.position.y = self.quaternion[1]
-        self.nav_goal.pose.orientation.z = self.quaternion[2]
-        self.nav_goal.pose.orientation.w = self.quaternion[3]
+        self.nav_goal.pose.position.x = fin_pose[0]  #self.quaternion[0]
+        self.nav_goal.pose.position.y =  fin_pose[1]   #self.quaternion[1]
+        print("ddd")
+        self.nav_goal.pose.orientation.z = self.orientation_q.z
+        self.nav_goal.pose.orientation.w = self.orientation_q.w
         
-        if self.tvecs[2] <= 0.45:
+        if self.start ==1:
             self.nav_pub.publish(self.nav_goal)
             self.main_matrix=None
             base_matrix=None
@@ -112,8 +72,6 @@ class Random_Pose():
 
 
     def make_matrix(self, x, y, theta):
-        # print("x:{}\ny:{}\ntheta:{}".format(x,y,theta* (180 / np.pi)))
-
         matrix = np.array([[np.cos(theta), -np.sin(theta), x],
                            [np.sin(theta), np.cos(theta), y],
                            [0, 0, 1]])
@@ -131,9 +89,8 @@ class Random_Pose():
     def transe_quaternion(self, matrix):
         goal_x, goal_y, goal_rad = self.get_params(matrix)
         goal_deg = (goal_rad * (180 / np.pi))
-        # rospy.loginfo("goal_x : %f , goal_y : %f , goal_theta : %f" % (goal_x, goal_y, goal_deg))
         ox, oy, ow, oz = tf.transformations.quaternion_from_euler(goal_x, goal_y, goal_rad)
-        self.quaternion = [goal_x, goal_y, ow, oz]
+        self.quaternion = [ goal_x, goal_y, ow, oz]
 
     def get_params(self, matrix):
         x, y = matrix[:2, 2]

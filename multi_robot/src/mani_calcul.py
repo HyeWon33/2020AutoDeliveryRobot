@@ -25,7 +25,7 @@ class Mani_Calcul():
         
         
     def Aruco(self,msg):
-        self.aruco = np.array([[msg.r_z,-msg.r_x,msg.r_y,1]])
+        self.aruco = np.array([[msg.t_z,-msg.t_x,msg.t_y,1]])
 
 
     # def transe_quaternion(self, matrix):
