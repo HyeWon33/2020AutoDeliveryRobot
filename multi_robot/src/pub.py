@@ -6,6 +6,8 @@ from std_msgs.msg import Int32
 from rospy.numpy_msg import numpy_msg
 from geometry_msgs.msg import Pose
 from multi_robot.msg import aruco_msgs
+from nav_msgs.msg import Odometry
+import numpy as np
 def getKey():
     tty.setraw(sys.stdin.fileno())
     rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
@@ -31,9 +33,9 @@ if __name__ == "__main__":
     pub_Mani_state = rospy.Publisher('Mani_state', Int32, queue_size=10)
     pub_control_frame = rospy.Publisher('control_frame',Int32,queue_size=10)
     pub_control_frame = rospy.Publisher('control_frame',Int32,queue_size=10)
-    pub_Mani_pose=rospy.Publisher('mani_pose',Pose,queue_size=10)
-    pub_aruco_pose=rospy.Publisher('aruco',aruco_msgs,queue_size=10)
-    poses = Pose()
+    pub_Mani_pose=rospy.Publisher('odom',Odometry,queue_size=10)
+    pub_aruco_pose=rospy.Publisher('rvecs_msg',aruco_msgs,queue_size=10)
+    poses = Odometry()
     aruco = aruco_msgs()
     try:
         while (1):
@@ -100,22 +102,23 @@ if __name__ == "__main__":
                 print('control_frame 0')
 
             if key == '7':
-                poses.position.x = 0.2
-                poses.position.y = 0.1
-                poses.position.z = 0.31
-                poses.orientation.x = 1
-                poses.orientation.y = 1
-                poses.orientation.z = 1
-                poses.orientation.w = 1
+                poses.pose.pose.position.x = 0.2
+                poses.pose.pose.position.y = 0.2
+                poses.pose.pose.position.z = 0.2
+                poses.pose.pose.orientation.x = np.pi/2
+                poses.pose.pose.orientation.y = np.pi/3
+                poses.pose.pose.orientation.z = np.pi/4
+                poses.pose.pose.orientation.w = np.pi/4
+                
                 pub_Mani_pose.publish(poses)
                
-                aruco.t_x = 0.2
-                aruco.t_y = 0.3
-                aruco.t_z = 0.1
+                aruco.t_x = 1.0
+                aruco.t_y = 1.0
+                aruco.t_z = 1
                 aruco.id = 1
-                aruco.r_x=0.3
-                aruco.r_y=0.2
-                aruco.r_z=0.1
+                aruco.r_x=np.pi/4
+                aruco.r_y=np.pi/4
+                aruco.r_z=np.pi/4
 
                 
                 pub_aruco_pose.publish(aruco)

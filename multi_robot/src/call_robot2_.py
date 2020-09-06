@@ -13,59 +13,72 @@ import cv2
 
 class Random_Pose():
     def __init__(self):
-        self.nav_pub = rospy.Publisher("move_base_simple/goal", PoseStamped, queue_size=10)
+        self.robot_pub = rospy.Publisher("/tb3_0/move_base_simple/goal", PoseStamped, queue_size=10)
+        self.aruco_pub = rospy.Publisher("/tb3_1/move_base_simple/goal", PoseStamped, queue_size=10)
+        self.main_pub = rospy.Publisher("/tb3_2/move_base_simple/goal", PoseStamped, queue_size=10)
+        self.nav_pub = rospy.Publisher("/tb3_3/move_base_simple/goal", PoseStamped, queue_size=10)
         self.nav_goal = PoseStamped()
-        
-        
-        self.ddd = rospy.Subscriber('call_frame', Int32, self.Start)
-
-        self.a = 0
         self.start = 0
-        self.quaternion = None
-        self.orientation_q = None
-        self.rvecs = None
-        self.tvecs = None
+        self.ddd = rospy.Subscriber('call_frame', Int32, self.Start)
         self.sub = rospy.Subscriber('odom', Odometry, self.get_rotation)
         self.aruco_sub = rospy.Subscriber('rvecs_msg', aruco_msgs, self.callback1)
+
     def Start(self, msg):
         self.start = msg.data
 
     def callback1(self, aruco_data):
 
-        self.rvecs = None
-        self.tvecs = None
-        self.rvecs = np.array([[aruco_data.r_x], [aruco_data.r_y], [aruco_data.r_z]])
-        self.tvecs = np.array([[aruco_data.t_x], [aruco_data.t_y], [aruco_data.t_z]])
-        print("sdfd")
+        self.rvecs = [aruco_data.r_x, aruco_data.r_y, aruco_data.r_z]
+        self.tvecs = [aruco_data.t_x, aruco_data.t_y, aruco_data.t_z]
+        # aurco pub
+
+        
     def get_rotation(self, msg):
         self.pose_p = msg.pose.pose.position
         self.orientation_q = msg.pose.pose.orientation
         orientation_q = self.orientation_q
         orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
+
         (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(orientation_list)
 
+        print(roll,pitch,yaw)
         self.Cul(self.pose_p.x,self.pose_p.y, yaw)
 
     def Cul(self, x, y, theta):
-
+        # print("\nsdfd\n\n",self.rvecs,self.tvecs)
         self.main_matrix = self.make_matrix(x, y, theta)
-        # base_matrix = self.make_matrix(self.tvecs[2], -self.tvecs[0], self.rvecs[1])
 
-        # move_tp = self.cul_matrix(self.main_matrix,base_matrix)
-        # rospy.loginfo("move_tp")
-        # rospy.loginfo(move_tp)
-        # self.transe_quaternion(move_tp)
-        ar_pose = np.array([[self.tvecs[2], -self.tvecs[0],1]])
-        fin_pose = np.dot(self.main_matrix,ar_pose.T)
+        base_matrix = self.make_matrix(self.tvecs[2], -self.tvecs[0], 0)
+        move_tp = self.cul_matrix(self.main_matrix,base_matrix)
+        move_x,move_y,move_ox,move_oy,move_oz,move_ow = self.transe_quaternion(move_tp)
+        aruco_pose = PoseStamped()
+        
+        ox,oy,oz,ow = tf.transformations.quaternion_from_euler(self.rvecs[0], self.rvecs[1], self.rvecs[2])
+        # aruco_pose.pose.orientation.x = ox
+        # aruco_pose.pose.orientation.y = oy
+        aruco_pose.header.frame_id = 'map'
+        aruco_pose.pose.orientation.z = oz
+        aruco_pose.pose.orientation.w = ow
+        aruco_pose.pose.position.x = self.tvecs[0]  #self.quaternion[0]
+        aruco_pose.pose.position.y = self.tvecs[1]  #self.quaternion[1]
+        aruco_pose.pose.position.z = self.tvecs[2]
+        print(aruco_pose)
+        # nav_pub
         self.nav_goal.header.frame_id = 'map'
-        self.nav_goal.pose.position.x = fin_pose[0]  #self.quaternion[0]
-        self.nav_goal.pose.position.y =  fin_pose[1]   #self.quaternion[1]
-        print("ddd")
-        self.nav_goal.pose.orientation.z = self.orientation_q.z
-        self.nav_goal.pose.orientation.w = self.orientation_q.w
+        self.nav_goal.pose.position.x = move_x  #self.quaternion[0]
+        self.nav_goal.pose.position.y = move_y  #self.quaternion[1]
+
+        self.nav_goal.pose.orientation.z = move_oz
+        self.nav_goal.pose.orientation.w = move_ow
+        self.nav_pub.publish(self.nav_goal)
+
+
+        self.aruco_pub.publish(aruco_pose)
+
         
         if self.start ==1:
-            self.nav_pub.publish(self.nav_goal)
+            #self.nav_pub.publish(self.nav_goal)
+            #print(self.nav_goal)
             self.main_matrix=None
             base_matrix=None
             
@@ -87,16 +100,16 @@ class Random_Pose():
         return result_matrix
 
     def transe_quaternion(self, matrix):
-        goal_x, goal_y, goal_rad = self.get_params(matrix)
-        goal_deg = (goal_rad * (180 / np.pi))
-        ox, oy, ow, oz = tf.transformations.quaternion_from_euler(goal_x, goal_y, goal_rad)
-        self.quaternion = [ goal_x, goal_y, ow, oz]
-
+        x, y, theta = self.get_params(matrix)
+        deg = (theta * (180 / np.pi))
+        ox, oy, oz, ow = tf.transformations.quaternion_from_euler(0, 0, theta)
+        
+        return x, y ,ox, oy, oz, ow
     def get_params(self, matrix):
         x, y = matrix[:2, 2]
-        theta = np.arccos(matrix[0, 0])
-        # cosine, sine = matrix[:2, 0]
-        # theta = np.arctan2(sine, cosine)
+        # theta = np.arccos(matrix[0, 0])
+        cosine, sine = matrix[:2, 0]
+        theta = np.arctan2(sine, cosine)
         return x, y, theta
 
 

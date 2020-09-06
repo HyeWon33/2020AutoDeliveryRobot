@@ -9,12 +9,15 @@ import cv2
 class test_sub():
 	def __init__(self):
 
-		self.aruco_sub = rospy.Subscriber('rvecs_msg', aruco_msgs, self.callback1)
+		self.aruco_sub = rospy.Subscriber('aruco_msg', aruco_msgs, self.callback1)
 
 	def callback1(self,aruco_data):
 		
-		rospy.loginfo("\n id:%d\n r_x : %.3f\n r_y : %.3f\n r_z : %.3f\n t_x : %.3f\n t_y : %.3f\n t_z : %.3f\n x : %.3f\n y : %.3f \n z : %.3f" % (aruco_data.id,aruco_data.r_x, aruco_data.r_y, aruco_data.r_z,
-		aruco_data.t_x, aruco_data.t_y, aruco_data.t_z,aruco_data.x,aruco_data.y,aruco_data.z))
+		rospy.loginfo("\n id:%d\n r_x : %.3f\n"
+					  " r_y : %.3f\n r_z : %.3f\n"
+					  " t_x : %.3f\n t_y : %.3f\n t_z : %.3f\n "
+					  " pan : %.3f\n tilt : %.3f \n roll : %.3f" % (aruco_data.id,aruco_data.r_x, aruco_data.r_y, aruco_data.r_z,
+		aruco_data.t_x, aruco_data.t_y, aruco_data.t_z,aruco_data.pan,aruco_data.tilt,aruco_data.roll))
 		#rospy.loginfo("t_x:%f, t_y:%f, t_z:%f" % (aruco_data.t_x, aruco_data.t_y, aruco_data.t_z))
 		# rvecs_list = [aruco_data.r_x, aruco_data.r_y, aruco_data.r_z]
 		# tvecs_list = [aruco_data.t_x, aruco_data.t_y, aruco_data.t_z]
