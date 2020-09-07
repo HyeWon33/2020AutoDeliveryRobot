@@ -7,10 +7,8 @@
 #include <std_msgs/Float32.h>
 #include <std_msgs/Float32MultiArray.h>
 #include "test_turtle_mani/Msg.h"
-#include "test_turtle_mani/PoseMsg.h"
 #include <sstream>
 
-#include <time.h>
 #include <eigen3/Eigen/Eigen>
 
 #include <geometry_msgs/Pose.h>
@@ -37,44 +35,53 @@
 #define WAIT_BOT 3
 #define RELEASE_BOX 4
 
+#define READY 1
+
 class OpenMani
 {
 private:
 	ros::NodeHandle n;
 	std::vector<std::string> joint_name;
+	std::vector<double> kinematic_pose_sub; 
 	int small_box_count;
 	int pick_large_box_count;
 	int wait_bot_count;
 	int release_box_count;
-	int count;
-	int count_t;
+	int mode;
 	int bot_ready;
-	int ar_marker_id;
-	double moving_time;
-	std_msgs::String current_mani_state;
+	int arrive_home;
+	int box_id;
+	int cur_time;
+	int count_t;
+	std_msgs::Int32 current_mani_state;
+	std_msgs::Int32 box_pick_up_complete;
 	std::string planning_group_name;
 	std::string planning_group_name2;
 	moveit::planning_interface::MoveGroupInterface* move_group_;
 	moveit::planning_interface::MoveGroupInterface* move_group2_;
-	moveit::planning_interface::MoveGroupInterface::Plan my_plan_gripper;
-	moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 	ros::Subscriber kinematic_pose_sub_;
-	ros::Subscriber ar_marker_sub_;
+	ros::Subscriber box_pick_up_check_sub_;
+	ros::Subscriber box_id_sub_;
+	ros::Subscriber arrive_home_sub_;
 	ros::Subscriber lift_bot_state_sub_;
 	ros::Publisher current_mani_state_pub_;
+	ros::Publisher box_pick_up_complete_pub_;
+	ros::Publisher  current_mani_pose_pub_;
 	
 public:
 	OpenMani();
 	~OpenMani();
 
-	bool setJointSpacePath(std::vector<double> kinematics_pose, double path_time);
+	bool setJointSpacePath(std::vector<float> kinematics_pose, double path_time);
 	bool setToolControl(std::vector<double> joint_angle);
+	bool setTaskSpacePath(std::vector<double> kinematics_pose, double path_time);
 	void updateRobotState();
-	bool setTaskSpacePath(std::vector<float> kinematics_pose, double path_time);
-	void init_sub_pub();
-	void Ar_Marker_Callback(const test_turtle_mani::Msg &msg);
+	void init();
+	void Arrive_Home_Callback(const test_turtle_mani::Msg &msg);
+	void Box_ID_Callback(const test_turtle_mani::Msg &msg);
 	void Lift_Bot_Callback(const test_turtle_mani::Msg &msg);
-	void Kinematic_Pose_Callback(const test_turtle_mani::Msg &msg);
+	void Kinematic_Pose_Callback(const geometry_msgs::Pose &msg);
+	void Publisher();
 
 	void publishCallback(const ros::TimerEvent&);
 	void Wait_Bot();
