@@ -9,11 +9,21 @@ import numpy as np
 
 def get_aruco( msg):
     br = tf.TransformBroadcaster()
-    br.sendTransform((msg.t_z, -msg.t_x, -msg.t_y),
-                    tf.transformations.quaternion_from_euler(msg.r_y-np.pi, -msg.r_x, -msg.r_z-np.pi),
+    
+    angle = np.sqrt(msg.r_x * msg.r_x + msg.r_y * msg.r_y + msg.r_z * msg.r_z)
+    cosa = np.cos(angle * 0.5)
+    sina = np.sin(angle * 0.5)
+    qx = msg.r_x * sina / angle
+    qy = msg.r_y * sina / angle
+    qz = msg.r_z * sina / angle
+    qw = cosa
+
+    print("test:", qx, qy, qz, qw)
+    br.sendTransform((msg.t_x, msg.t_y, msg.t_z),
+                    (qx, qy, qz, qw),
                     rospy.Time.now(),
                     "arucopose",
-                    "link5")
+                    "rgb_test")
 def main():
     rospy.init_node("draw_aruco_axis")
     rospy.Subscriber('aruco_msg', aruco_msgs, get_aruco)
