@@ -4,9 +4,6 @@ from multi_robot.msg import aruco_msgs
 import tf
 import numpy as np
 
-# import util.util_funcs as uf
-
-
 def get_aruco( msg):
     br = tf.TransformBroadcaster()
     
@@ -18,7 +15,6 @@ def get_aruco( msg):
     qz = msg.r_z * sina / angle
     qw = cosa
 
-    print("test:", qx, qy, qz, qw)
     br.sendTransform((msg.t_x, msg.t_y, msg.t_z),
                     (qx, qy, qz, qw),
                     rospy.Time.now(),

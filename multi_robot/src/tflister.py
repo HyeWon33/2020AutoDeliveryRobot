@@ -17,15 +17,13 @@ def main():
     # spawner = rospy.ServiceProxy('spawn', turtlesim.srv.Spawn)
     # spawner(4, 2, 0, 'turtle2')
 
-    turtle_vel = rospy.Publisher("/move_base_simple/goal", PoseStamped, queue_size=1)
+    turtle_vel = rospy.Publisher("move_base_simple/goal", PoseStamped, queue_size=1)
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
         try:
             (trans,rot) = listener.lookupTransform('/map', '/arucopose', rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             continue
-        print("trans,rot",trans,rot)
-        # trans = np.array([trans])
         roll, pitch, yaw = tf.transformations.euler_from_quaternion(rot)
         ox, oy, oz, ow = tf.transformations.quaternion_from_euler(roll, pitch, yaw+np.pi/2)
 
@@ -36,17 +34,13 @@ def main():
         ])
         wMatrix = np.array([
             [math.cos(np.pi), -math.sin(np.pi), 0],
-            [math.sin(np.pi), math.cos(np.pi), -0.25],
+            [math.sin(np.pi), math.cos(np.pi), -0.20],
             [0, 0, 1]
         ])
         m = np.dot(yawMatrix,wMatrix)
         x, y = m[:2, 2]
         cosine, sine = m[:2, 0]
         theta = np.arctan2(sine, cosine)
-        
-
-
-        # goal = send_pose(trans,rot)
         
         nav_goal = PoseStamped()
         nav_goal.header.frame_id = 'map'
@@ -77,24 +71,17 @@ def send_pose( t_, quaternion):
     nav_goal.pose.orientation.z = quaternion[2]
     nav_goal.pose.orientation.w = quaternion[3]
     return nav_goal
-        # print(nav_goal)
-        # self.nav_pub.publish(nav_goal)
-    # print(t,r,p,y)
 
 def Make_3d_matrix(pose, orientation):
     euler = Euler_from_Quaternion(orientation)
-    # print(euler)
     rotaion = Create_Rotation_matrix(euler)
-    # print(rotaion)
     matrix_3d = Marge_rota_trace(rotaion, pose.T)
     return matrix_3d
+
 def Euler_from_Quaternion(orientation_q):
     roll, pitch, yaw = tf.transformations.euler_from_quaternion(orientation_q)
-    
-
     euler = [yaw, pitch, roll]
     euler_deg = [180 * (yaw / np.pi), 180 * (pitch / np.pi), 180 * (roll / np.pi)]
-
     return euler
 
 def Quaternion_from_Euler(yaw, pitch, roll):
@@ -127,11 +114,9 @@ def Create_Rotation_matrix( euler):
     return rotation_matrix
 
 def Marge_rota_trace(r_matrix, t_matrix):  # r_matrix(3,3,np.array), t_matrix(3,1,np.array)
-    print(r_matrix,t_matrix)
     matrix_3x4 = np.concatenate((r_matrix, t_matrix), axis=1)
     zero_one = np.array([[0., 0., 0., 1.]])
     matrix_4x4 = np.concatenate((matrix_3x4, zero_one), axis=0)
-    # print(matrix_4x4)
     return matrix_4x4
 
 def Cul_matrix( ma_1=None, ma_2=None):
@@ -139,7 +124,6 @@ def Cul_matrix( ma_1=None, ma_2=None):
     return result_matrix
 
 def Get_RPY_to_rotation_vector( matrix):
-    # print(matrix.shape)
     r_11 = matrix[0, 0]  ## cos(yaw)cos(pitch)
     r_21 = matrix[1, 0]  ## sin(yaw)cos(pitch)
     r_31 = matrix[2, 0]  ## -sin(pitch)
@@ -150,9 +134,7 @@ def Get_RPY_to_rotation_vector( matrix):
     pitch = np.arctan2(-r_31, np.sqrt((np.square(r_32)) + np.square(r_33)))
     roll = np.arctan2(r_32, r_33)
     euler_deg = [180 * (yaw / np.pi), 180 * (pitch / np.pi), 180 * (roll / np.pi)]
-    # print("euler2", yaw, pitch, roll)
     quaternion = Quaternion_from_Euler(yaw, pitch, roll)
-    # print("qu2", quaternion)
     return t_, quaternion
 
 

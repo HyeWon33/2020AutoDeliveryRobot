@@ -13,44 +13,25 @@ def get_mani_pose( msg):
     mani_pose = np.array([[msg.position.x, msg.position.y, msg.position.z]])
     mani_orientation = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
     r, p, y = tf.transformations.euler_from_quaternion(mani_orientation)
-    # print(np.around([r,p,y],3))
     mani_3d_matrix = Make_3d_matrix(mani_pose, mani_orientation)
-    print("mani",np.around(mani_3d_matrix,3))
     cam_rgb_pose = np.array([[-0.08,0,0.04]])
     cam_rgb_rpy = [0,0,0]
     cam_rotation = Create_Rotation_matrix(cam_rgb_rpy)
-    # print(cam_rotation)
     cam_3d_matrix = Marge_rota_trace(cam_rotation,cam_rgb_pose.T)
-    print("cam",np.around(cam_3d_matrix,3))
     m_c_matrix = np.dot(mani_3d_matrix,cam_3d_matrix)
-    print("mc",np.around(m_c_matrix,3))
     t,q = Get_RPY_to_rotation_vector(m_c_matrix)
-    # x,y,z,w = tf.transformations.quaternion_from_euler(r-np.pi/2,p,y-np.pi/2)
-    # print(np.around([x,y,z,w],3))
     br = tf.TransformBroadcaster()
     br.sendTransform((t),
                 (q),
                 rospy.Time.now(),
                 "cam_test",
-                "base_link")
+                "tb3_1/base_link")
 
 
 def main():
     rospy.init_node("draw_cam")
     listener = tf.TransformListener()
-    
-    # while not rospy.is_shutdown():
-    #     try:
-    #       (trans,rot) = listener.lookupTransform('/map', '/link5', rospy.Time(0))
-    #     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-    #         continue
     rospy.Subscriber('mani_pose', Pose, get_mani_pose)
-        # br = tf.TransformBroadcaster()
-        # br.sendTransform((trans[0]+0.5, trans[1], trans[2]+0.05),
-        #             (rot[0], rot[1], rot[2], rot[3]),
-        #             rospy.Time.now(),
-        #             "mani_pose",
-        #             "link5")
     rospy.spin()
 
 def Make_3d_matrix(pose, orientation):
@@ -58,13 +39,11 @@ def Make_3d_matrix(pose, orientation):
     rotaion = Create_Rotation_matrix(euler)
     matrix_3d = Marge_rota_trace(rotaion, pose.T)
     return matrix_3d
+
 def Euler_from_Quaternion(orientation_q):
     roll, pitch, yaw = tf.transformations.euler_from_quaternion(orientation_q)
-    
-
     euler = [yaw, pitch, roll]
     euler_deg = [180 * (yaw / np.pi), 180 * (pitch / np.pi), 180 * (roll / np.pi)]
-
     return euler
 
 def Quaternion_from_Euler(yaw, pitch, roll):
@@ -98,11 +77,10 @@ def Create_Rotation_matrix( euler):
 
     return rotation_matrix
 
-def Marge_rota_trace(r_matrix, t_matrix):  # r_matrix(3,3,np.array), t_matrix(3,1,np.array)
+def Marge_rota_trace(r_matrix, t_matrix):
     matrix_3x4 = np.concatenate((r_matrix, t_matrix), axis=1)
     zero_one = np.array([[0., 0., 0., 1.]])
     matrix_4x4 = np.concatenate((matrix_3x4, zero_one), axis=0)
-    # print(matrix_4x4)
     return matrix_4x4
 
 def Cul_matrix( ma_1=None, ma_2=None):
@@ -110,7 +88,6 @@ def Cul_matrix( ma_1=None, ma_2=None):
     return result_matrix
 
 def Get_RPY_to_rotation_vector( matrix):
-    # print(matrix.shape)
     r_11 = matrix[0, 0]  ## cos(yaw)cos(pitch)
     r_21 = matrix[1, 0]  ## sin(yaw)cos(pitch)
     r_31 = matrix[2, 0]  ## -sin(pitch)
@@ -121,9 +98,7 @@ def Get_RPY_to_rotation_vector( matrix):
     pitch = np.arctan2(-r_31, np.sqrt((np.square(r_32)) + np.square(r_33)))
     roll = np.arctan2(r_32, r_33)
     euler_deg = [180 * (yaw / np.pi), 180 * (pitch / np.pi), 180 * (roll / np.pi)]
-    # print("euler2", yaw, pitch, roll)
     quaternion = Quaternion_from_Euler(yaw, pitch, roll)
-    # print("qu2", quaternion)
     return t_, quaternion
 
 

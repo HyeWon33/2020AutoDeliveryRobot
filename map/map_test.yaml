@@ -1,4 +1,4 @@
-image: /home/j/workspace/3x3.pgm
+image: /home/mun/workspace/map_test.pgm
 resolution: 0.050000
 origin: [-10.000000, -10.000000, 0.000000]
 negate: 0

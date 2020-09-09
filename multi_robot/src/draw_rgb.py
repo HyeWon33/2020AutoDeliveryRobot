@@ -14,7 +14,6 @@ def main():
     rate = rospy.Rate(10.0)
     x,y,z,w = tf.transformations.quaternion_from_euler(-np.pi/2,0,-np.pi/2)
     while not rospy.is_shutdown():
-        # t = rospy.Time.now().to_sec() * math.pi
         br.sendTransform((0,0,0),
                          (x,y,z,w),
                          rospy.Time.now(),
