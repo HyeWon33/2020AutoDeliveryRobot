@@ -24,7 +24,7 @@ def get_mani_pose( msg):
     br.sendTransform((t),
                 (q),
                 rospy.Time.now(),
-                "cam_test",
+                "/cam_test",
                 "tb3_1/base_link")
 
 

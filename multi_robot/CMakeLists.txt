@@ -60,6 +60,7 @@ find_package(Eigen3 REQUIRED)
  add_message_files(
    FILES
    aruco_msgs.msg
+   check_msg.msg
  )
 
 ## Generate services in the 'srv' folder

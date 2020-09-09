@@ -6,6 +6,7 @@ import numpy as np
 
 def get_aruco( msg):
     br = tf.TransformBroadcaster()
+    print(msg.r_x)
     
     angle = np.sqrt(msg.r_x * msg.r_x + msg.r_y * msg.r_y + msg.r_z * msg.r_z)
     cosa = np.cos(angle * 0.5)
