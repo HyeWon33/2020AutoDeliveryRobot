@@ -32,6 +32,7 @@ def main():
     rospy.init_node("draw_cam")
     listener = tf.TransformListener()
     rospy.Subscriber('mani_pose', Pose, get_mani_pose)
+    rospy.loginfo_once("CAM_OK")
     rospy.spin()
 
 def Make_3d_matrix(pose, orientation):

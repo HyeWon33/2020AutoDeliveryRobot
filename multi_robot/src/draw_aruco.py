@@ -24,7 +24,7 @@ def get_aruco( msg):
 def main():
     rospy.init_node("draw_aruco_axis")
     rospy.Subscriber('aruco_msg', aruco_msgs, get_aruco)
-
+    rospy.loginfo_once("ARUCO_OK")
     rospy.spin()
 
 if __name__ == '__main__':

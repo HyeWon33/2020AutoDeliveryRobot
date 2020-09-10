@@ -1,5 +1,4 @@
-#! /home/j/.pyenv/versions/ros_py36/bin/python
-
+#!/usr/bin/env python
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
@@ -10,7 +9,7 @@ import numpy as np
 class SelfDrive:
     def __init__(self, publisher):
         self.publisher = publisher
-        self.stop_sub = rospy.Subscriber('/stop',Int32,self.Stop)
+        self.stop_sub = rospy.Subscriber('/mode',Int32,self.Stop)
         self.turtle_vel = Twist()
         self.stop = 0
     def Stop(self,msg):
@@ -18,21 +17,29 @@ class SelfDrive:
         rospy.loginfo(self.stop)
     def lds_callback(self, scan):
 
-        avg_right = self.average(scan.ranges[300:360])
-        avg_left = self.average(scan.ranges[1:60])
-        center = scan.ranges[335:360] + scan.ranges[0:15]
+        avg_right = self.average(scan.ranges[300:340])
+        avg_left = self.average(scan.ranges[20:60])
+        center = scan.ranges[340:360] + scan.ranges[0:20]
+        print(len(center))
         avg_center = self.average(center)
-        print(avg_right,avg_left)
+        print(avg_left,avg_center,avg_right)
 
         if self.stop == 1:
             self.goturn(0,0)
-        else :
-            if avg_right <1:
+        elif self.stop == 0  :
+            if avg_right <0.9 and avg_left < 0.9 and avg_center <0.92:
+                self.goturn(-0.1,1)
+            elif avg_right <0.9 :
                 self.goturn(0,1.2)
-            elif  avg_left < 1:
+            elif  avg_left < 0.9:
                 self.goturn(0, -1.2)
+            elif avg_center <0.92:
+                self.goturn(-0.1,1.2)
             else:
-                self.goturn(0.2,0)       
+                self.goturn(0.2,0)   
+
+        else:
+            pass
 
 
 
@@ -62,10 +69,10 @@ class SelfDrive:
         
 def main():
     rospy.init_node('self_drive')
-    publisher = rospy.Publisher('/tb3_0/cmd_vel', Twist, queue_size=1)
+    publisher = rospy.Publisher('cmd_vel', Twist, queue_size=1)
     driver = SelfDrive(publisher)
     driver.rate = rospy.Rate(3.8)
-    subscriber = rospy.Subscriber('/tb3_0/scan', LaserScan,
+    subscriber = rospy.Subscriber('scan', LaserScan,
                                   lambda scan: driver.lds_callback(scan))
     rospy.spin()
 
