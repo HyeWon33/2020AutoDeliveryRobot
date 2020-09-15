@@ -22,7 +22,7 @@ class Control():
 
 
     def sub_msgs(self):
-        rospy.Subscriber('check_aruco',check_msg, self.ar_check)
+        rospy.Subscriber('/tb3_1/check_aruco',check_msg, self.ar_check)
         rospy.Subscriber("/aruco_move_fin", Bool, self.ar_fin)               # robot이 aruco marker앞에 이동 완료
 
     def ar_check(self, check_aruco):
@@ -52,7 +52,7 @@ class Control():
                     self.mode.data = 2
             else:
                 self.mode.data = 0
-                check_count = 0
+                self.check_count = 0
 
         if self.mode.data == 2:  # aruco marker로 접근
             if self.aruco_fin == True:

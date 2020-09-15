@@ -21,8 +21,8 @@ def main():
     # global aruco_check
     rospy.init_node('send_mani')
     listener = tf.TransformListener()
-    turtle_vel = rospy.Publisher("/mani_pose", Pose, queue_size=1)
-    fin_pub = rospy.Publisher("/aruco_move_fin", Bool, queue_size=1)
+    turtle_vel = rospy.Publisher("cur_mani_pose", Pose, queue_size=1)
+    fin_pub = rospy.Publisher("aruco_move_fin", Bool, queue_size=1)
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
         rate.sleep()
@@ -32,23 +32,34 @@ def main():
             
 
         try:
-            (trans,rot) = listener.lookupTransform('/base_link', '/arucopose', rospy.Time(0))
-            
+            (trans,rot) = listener.lookupTransform('tb3_1/base_link', '/arucopose', rospy.Time(0))
+            print("ddd")
+
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+            print("aaa")
             continue
     # (trans,rot) = listener.lookupTransform('/map', '/arucopose', rospy.Time(0))
-
-        
+        br = tf.TransformBroadcaster()
+        br.sendTransform((trans[0],trans[1],trans[2]),
+                        (rot[0], rot[1], rot[2], rot[3]),
+                        rospy.Time.now(),
+                        "b_a",
+                        "tb3_1/base_link")      
         nav_goal = Pose()
         # nav_goal.header.frame_id = 'map'
-        nav_goal.pose.position.x = trans[0]
-        nav_goal.pose.position.y = trans[1]
-        nav_goal.pose.position.z = trans[2]
-        nav_goal.pose.orientation.x = rot[0]
-        nav_goal.pose.orientation.y = rot[1]
-        nav_goal.pose.orientation.z = rot[2]
-        nav_goal.pose.orientation.w = rot[3]
-        # print("seceond",aruco_check)
+        if trans[1] < 0 and trans[1] > -0.06:
+            trans[1] = trans[1] - 0.03
+        elif trans[1] > 0 and trans[1] < 0.015:
+            trans[1] = trans[1] - 0.03
+        elif trans[1] < -0.06 and trans[1] > -0.08:
+            trans[1] = trans[1] + 0.02
+        elif trans[1] < -0.08:
+            trans[1] = trans[1]
+        nav_goal.position.x = trans[0]+0.02
+        nav_goal.position.y = trans[1]
+        nav_goal.position.z = trans[2]+0.02
+
+        print("x: {}  y:{}  z:{}".format(trans[0], trans[1], trans[2]))
         # if aruco_check  == 2 :
         turtle_vel.publish(nav_goal)
         fin_pub.publish(True)

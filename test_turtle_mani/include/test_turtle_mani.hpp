@@ -47,7 +47,7 @@ private:
 	int wait_bot_count;
 	int release_box_count;
 	int count;
-	int count_t;
+	int check_mode;
 	int bot_ready;
 	int ar_marker_id;
 	double moving_time;
@@ -67,10 +67,10 @@ public:
 	OpenMani();
 	~OpenMani();
 
-	bool setJointSpacePath(std::vector<double> kinematics_pose, double path_time);
+	bool setTaskSpacePath(std::vector<double> kinematics_pose, double path_time);
 	bool setToolControl(std::vector<double> joint_angle);
 	void updateRobotState();
-	bool setTaskSpacePath(std::vector<float> kinematics_pose, double path_time);
+	bool setJointSpacePath(std::vector<double> joint_angle, double path_time);
 	void init_sub_pub();
 	void Ar_Marker_Callback(const test_turtle_mani::Msg &msg);
 	void Lift_Bot_Callback(const test_turtle_mani::Msg &msg);

@@ -23,7 +23,7 @@ def get_aruco( msg):
                     "rgb_test")
 def main():
     rospy.init_node("draw_aruco_axis")
-    rospy.Subscriber('aruco_msg', aruco_msgs, get_aruco)
+    rospy.Subscriber('/tb3_1/aruco_msg', aruco_msgs, get_aruco)
     rospy.loginfo_once("ARUCO_OK")
     rospy.spin()
 

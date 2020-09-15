@@ -21,7 +21,7 @@ def main():
     global aruco_check
     rospy.init_node('aruco_move')
     listener = tf.TransformListener()
-    turtle_vel = rospy.Publisher("move_base_simple/goal", PoseStamped, queue_size=1)
+    turtle_vel = rospy.Publisher("/tb3_1/move_base_simple/goal", PoseStamped, queue_size=1)
     fin_pub = rospy.Publisher("/aruco_move_fin", Bool, queue_size=1)
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
@@ -48,7 +48,7 @@ def main():
             ])
             wMatrix = np.array([
                 [math.cos(np.pi), -math.sin(np.pi), 0],
-                [math.sin(np.pi), math.cos(np.pi), -0.20],
+                [math.sin(np.pi), math.cos(np.pi), -0.4],
                 [0, 0, 1]
             ])
             m = np.dot(yawMatrix,wMatrix)

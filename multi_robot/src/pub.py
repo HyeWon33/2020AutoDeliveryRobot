@@ -35,6 +35,7 @@ if __name__ == "__main__":
     pub_control_frame = rospy.Publisher('control_frame',Int32,queue_size=10)
     pub_Mani_pose=rospy.Publisher('odom',Odometry,queue_size=10)
     pub_aruco_pose=rospy.Publisher('rvecs_msg',aruco_msgs,queue_size=10)
+    mode_pub = rospy.Publisher('/mode', Int32, queue_size=1) 
     poses = Odometry()
     aruco = aruco_msgs()
     try:
@@ -67,26 +68,26 @@ if __name__ == "__main__":
 
 
             if key == '1':
-                pub_call_fin.publish(1)
+                mode_pub.publish(1)
                 print('call_fin 1')
             if key == '2':
-                pub_call_fin.publish(0)
+                mode_pub.publish(2)
                 print('call_fin 0')
 
 
             if key == '3':
-                pub_Mani_state.publish(1)
+                mode_pub.publish(3)
                 print('Mani_state 1')
             if key == '4':
-                pub_Mani_state.publish(0)
+                mode_pub.publish(0)
                 print('Mani_state 0')
 
 
             if key == '5':
-                pub_control_frame.publish(1)
+                mode_pub.publish(1)
                 print('control_frame 1')
             if key == '6':
-                pub_control_frame.publish(0)
+                mode_pub.publish(0)
                 print('control_frame 0')
 
 

@@ -14,7 +14,7 @@ def get_mani_pose( msg):
     mani_orientation = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
     r, p, y = tf.transformations.euler_from_quaternion(mani_orientation)
     mani_3d_matrix = Make_3d_matrix(mani_pose, mani_orientation)
-    cam_rgb_pose = np.array([[-0.08,0,0.04]])
+    cam_rgb_pose = np.array([[-0.06,0,0.04]])
     cam_rgb_rpy = [0,0,0]
     cam_rotation = Create_Rotation_matrix(cam_rgb_rpy)
     cam_3d_matrix = Marge_rota_trace(cam_rotation,cam_rgb_pose.T)
@@ -26,12 +26,17 @@ def get_mani_pose( msg):
                 rospy.Time.now(),
                 "/cam_test",
                 "tb3_1/base_link")
+    br.sendTransform((msg.position.x, msg.position.y, msg.position.z),
+                (msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w),
+                rospy.Time.now(),
+                "/mani_pose",
+                "tb3_1/base_link")
 
 
 def main():
     rospy.init_node("draw_cam")
     listener = tf.TransformListener()
-    rospy.Subscriber('mani_pose', Pose, get_mani_pose)
+    rospy.Subscriber('/tb3_1/mani_pose', Pose, get_mani_pose)
     rospy.loginfo_once("CAM_OK")
     rospy.spin()
 
