@@ -73,7 +73,7 @@ endif()
  add_message_files(
    FILES
    Msg.msg
-   PoseMsg.msg
+   Mani_State_Msg.msg
  )
 
 ## Generate services in the 'srv' folder

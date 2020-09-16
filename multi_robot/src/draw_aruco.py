@@ -4,11 +4,9 @@ from multi_robot.msg import aruco_msgs
 import tf
 import numpy as np
 
-# import util.util_funcs as uf
-
-
 def get_aruco( msg):
     br = tf.TransformBroadcaster()
+    print(msg.r_x)
     
     angle = np.sqrt(msg.r_x * msg.r_x + msg.r_y * msg.r_y + msg.r_z * msg.r_z)
     cosa = np.cos(angle * 0.5)
@@ -18,7 +16,6 @@ def get_aruco( msg):
     qz = msg.r_z * sina / angle
     qw = cosa
 
-    print("test:", qx, qy, qz, qw)
     br.sendTransform((msg.t_x, msg.t_y, msg.t_z),
                     (qx, qy, qz, qw),
                     rospy.Time.now(),
@@ -26,8 +23,8 @@ def get_aruco( msg):
                     "rgb_test")
 def main():
     rospy.init_node("draw_aruco_axis")
-    rospy.Subscriber('aruco_msg', aruco_msgs, get_aruco)
-
+    rospy.Subscriber('/tb3_1/aruco_msg', aruco_msgs, get_aruco)
+    rospy.loginfo_once("ARUCO_OK")
     rospy.spin()
 
 if __name__ == '__main__':
