@@ -5,6 +5,7 @@
 #include <std_msgs/Int32.h>
 #include <std_msgs/UInt16.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/Float32MultiArray.h>
 #include "test_turtle_mani/Msg.h"
 #include "test_turtle_mani/PoseMsg.h"

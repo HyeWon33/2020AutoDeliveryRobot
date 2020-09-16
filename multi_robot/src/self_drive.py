@@ -9,50 +9,73 @@ import numpy as np
 class SelfDrive:
     def __init__(self, publisher):
         self.publisher = publisher
-        self.stop_sub = rospy.Subscriber('/mode',Int32,self.Stop)
         self.turtle_vel = Twist()
-        self.stop = 0
-    def Stop(self,msg):
-        self.stop = msg.data
-        rospy.loginfo(self.stop)
+        self.mode = 0
+
+    def Stop(self, msg):
+        self.mode = msg.data
+
+
     def lds_callback(self, scan):
+        if self.mode == 0:
+            avg = list()
+            for n in range(35):
+                # print(n)
+                a = self.average(scan.ranges[10*n:10*(n+1)])
+                avg.append(a)
 
-        # if self.stop == 0:
-
-        avg_right = self.average(scan.ranges[300:350])
-        avg_left = self.average(scan.ranges[10:60])
-        center = scan.ranges[350:360] + scan.ranges[0:10]
-        # print(len(center))
-        avg_center = self.average(center)
-        # print(avg_left,avg_center,avg_right)
-
-        if self.stop == 1:
-            self.goturn(0,0)
-        elif self.stop == 0  :
-            if avg_right <0.6 and avg_left < 0.6 and avg_center <0.75:
-                self.goturn(-0.1,1)
-            elif avg_right <0.9 :
-                self.goturn(0,1.2)
-            elif  avg_left < 0.9:
-                self.goturn(0, -1.2)
-            elif avg_center <0.75:
-                self.goturn(-0.1,1.2)
-            else:
-                self.goturn(0.2,0)   
-
-        else:
-            pass
-
-
-
-    def goturn(self,x,z):
+            if avg[0] < 0.60:
+                self.goturn(0, -1)
+            elif avg[1] < 0.60:
+                self.goturn(0, -1)
+            elif avg[2] < 0.60:
+                self.goturn(0, -1)
+            elif avg[3] < 0.60:
+                self.goturn(0, -1)
+            elif avg[4] < 0.60:
+                self.goturn(0, -1)
+            elif avg[5] < 0.60:
+                self.goturn(0, -1)
+            elif avg[6] < 0.60:
+                self.goturn(0, -1)
+            elif avg[7] < 0.60:
+                self.goturn(0, -1)
+            elif avg[8] < 0.60:
+                self.goturn(0, -1)
     
+
+            elif avg[-1] < 0.60:
+                self.goturn(0, 1)
+            elif avg[-2] < 0.60:
+                self.goturn(0, 1)
+            elif avg[-3] < 0.60:
+                self.goturn(0, 1)
+            elif avg[-4] < 0.60:
+                self.goturn(0, 1)
+            elif avg[-5] < 0.60:
+                self.goturn(0, 1)
+            elif avg[-6] < 0.60:
+                self.goturn(0, 1)
+            elif avg[-7] < 0.60:
+                self.goturn(0, 1)
+            elif avg[-8] < 0.60:
+                self.goturn(0, 1)
+            else:
+                self.goturn(0.2, 0)
+        elif self.mode == 1:
+            self.goturn(0, 0)
+            rate = rospy.Rate(0.5)
+            rate.sleep()
+
+
+
+    def goturn(self, x, z):
         self.turtle_vel.linear.x = x
         self.turtle_vel.angular.z = z
-        #print(a*4)
+        print(x,z)
         self.publisher.publish(self.turtle_vel)
 
-    def average(self,a):
+    def average(self, a):
         avg = 0
         sum_ = 0
         count_ = 0
@@ -60,25 +83,28 @@ class SelfDrive:
             if num != np.inf:
                 sum_ = sum_ + num
                 count_ = count_ + 1
-           # print(count_)
-        try :
+        # print(count_)
+        try:
             avg = sum_ / count_
         except ZeroDivisionError:
-            pass
-            
+            avg = 10
+
         return avg
-        
-        
+
+
 def main():
     rospy.init_node('self_drive')
-    publisher = rospy.Publisher('/tb3_1/cmd_vel', Twist, queue_size=1)
+    publisher = rospy.Publisher('/tb3_1/cmd_vel', Twist, queue_size=10)
     driver = SelfDrive(publisher)
-    driver.rate = rospy.Rate(3.8)
+    subscriber = rospy.Subscriber('/mode', Int32,
+                                  lambda scan: driver.Stop(scan))
+    
+
     subscriber = rospy.Subscriber('/tb3_1/scan', LaserScan,
-                                  lambda scan: driver.lds_callback(scan))
+                                    lambda scan: driver.lds_callback(scan))
+
     rospy.spin()
+
 
 if __name__ == "__main__":
     main()
-    
-    

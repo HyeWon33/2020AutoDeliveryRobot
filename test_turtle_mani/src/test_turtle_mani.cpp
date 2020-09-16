@@ -3,8 +3,10 @@
 std::vector<double> kinematic_pose_sub;
 std::vector<double> kinematic_pose_check;
 std::vector<double> temp_position;
+ros::Publisher pick_up_pub_;
 ros::Publisher pub_;
 int cur_time;
+bool arrive_home;
 
 OpenMani::OpenMani()
 :n(""),
@@ -175,6 +177,7 @@ void OpenMani::demoSequence()
 	std::vector<double> kinematics_orientation;
 	std::vector<double> gripper_value;
 	int add_time = 0;
+	std_msgs::Bool fin_pick_up;
 	
 
 	switch(count){
@@ -243,15 +246,18 @@ void OpenMani::demoSequence()
 		}
 
 		add_time = time(0);
-		if((add_time-cur_time) >= 6){
+		if((add_time-cur_time) >= 6)
 			count ++;
-			
-		}
 	
 		break;
 
 	case 4: 
-		if(check_mode == 4)
+		if(arrive_home == false){
+			fin_pick_up.data = true;
+			pick_up_pub_.publish(fin_pick_up);
+		}		
+		
+		if(check_mode == 4 && arrive_home == true)
 		{
 			gripper_value.push_back(0.01);
 			setToolControl(gripper_value);
@@ -266,43 +272,6 @@ void OpenMani::demoSequence()
 			kinematic_pose_sub.clear();
 		}
 		break;
-
-
-
-	/*case 4:
-		if(count_t == 1)
-		{
-			gripper_value.push_back(0.01);
-			setToolControl(gripper_value);
-			count_t = 0;
-			ROS_INFO("case 4");
-		}
-
-		add_time = time(0);
-		if((add_time-cur_time) >= 1)
-			count ++;
-			
-		break;
-
-	case 5: 
-		if(count_t == 0)
-		{
-			joint_angle.push_back( 0.000 );
-			joint_angle.push_back( -1.56 );
-			joint_angle.push_back( 1.000 );
-			joint_angle.push_back( 0.700 );
-			setJointSpacePath(joint_angle, 2.0);
-			count_t = 1;
-			ROS_INFO("case 5");
-		}
-
-		add_time = time(0);
-		if((add_time-cur_time) >= 5){
-			count = 0;
-			kinematic_pose_sub.clear();
-		}
-			
-		break;*/
 	}
 }
 
@@ -339,6 +308,11 @@ void PoseCallback(const geometry_msgs::Pose &msg){
 	kinematic_pose_sub.push_back(msg.position.z);
 }
 
+void ArriveHomeCallback(const std_msgs::Bool &msg){
+
+	arrive_home = msg.data;
+}
+
 int main(int argc, char **argv){
     
 	ros::init(argc, argv,"test_turtle_mani");
@@ -357,7 +331,11 @@ int main(int argc, char **argv){
 	ros::Timer publish_timer = nh.createTimer(ros::Duration(1), &OpenMani::publishCallback, &OpenMani);
 	ros::Subscriber check_sub_ = nh.subscribe("aruco_msg", 10, CheckCallback);
 	ros::Subscriber sub_ = nh.subscribe("cur_mani_pose", 10, PoseCallback);
+	ros::Subscriber arrive_home_sub_ = nh.subscribe("arrive_home", 10, ArriveHomeCallback);
+
 	pub_ = nh.advertise<geometry_msgs::Pose>("mani_pose", 1000);
+	pick_up_pub_ = nh.advertise<std_msgs::Bool>("fin_pick_up", 1000);
+	
 	ROS_INFO("11");
 	//ros::start();
 	while (ros::ok())

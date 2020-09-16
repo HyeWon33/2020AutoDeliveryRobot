@@ -10,7 +10,7 @@ count = 0
 aruco_check =False
 
 def ar_check(check_aruco):
-    global  count,aruco_check
+    global  count, aruco_check
 
     aruco_check = check_aruco.data
     # print("sub",aruco_check)
@@ -18,7 +18,7 @@ def ar_check(check_aruco):
 
 
 def main():
-    global aruco_check
+    global aruco_check, count
     rospy.init_node('aruco_move')
     listener = tf.TransformListener()
     turtle_vel = rospy.Publisher("/tb3_1/move_base_simple/goal", PoseStamped, queue_size=1)
@@ -28,7 +28,7 @@ def main():
         rate.sleep()
         rospy.Subscriber('/mode',Int32, ar_check)
         print("fist",aruco_check)
-        if aruco_check == 2:
+        if aruco_check == 2 and count == 0:
             
 
             try:
@@ -69,8 +69,10 @@ def main():
             if aruco_check  == 2 :
                 turtle_vel.publish(nav_goal)
                 fin_pub.publish(True)
-        else:
+                count += 1
+        elif aruco_check != 2:
             fin_pub.publish(False)
+            count = 0
         rate.sleep()
 
 if __name__ == '__main__':
