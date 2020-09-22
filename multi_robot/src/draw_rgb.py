@@ -18,8 +18,8 @@ def main():
         br.sendTransform((0,0,0),
                          (x,y,z,w),
                          rospy.Time.now(),
-                         "rgb_test",
-                         "cam_test")
+                         "tb3_1/rgb_test",
+                         "tb3_1/cam_test")
         rate.sleep()
 
 

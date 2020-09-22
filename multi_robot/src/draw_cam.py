@@ -24,12 +24,12 @@ def get_mani_pose( msg):
     br.sendTransform((t),
                 (q),
                 rospy.Time.now(),
-                "/cam_test",
+                "tb3_1/cam_test",
                 "tb3_1/base_link")
     br.sendTransform((msg.position.x, msg.position.y, msg.position.z),
                 (msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w),
                 rospy.Time.now(),
-                "/mani_pose",
+                "tb3_1/mani_pose",
                 "tb3_1/base_link")
 
 

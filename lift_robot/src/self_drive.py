@@ -94,13 +94,13 @@ class SelfDrive:
 
 def main():
     rospy.init_node('self_drive')
-    publisher = rospy.Publisher('/tb3_1/cmd_vel', Twist, queue_size=10)
+    publisher = rospy.Publisher('/tb3_0/cmd_vel', Twist, queue_size=10)
     driver = SelfDrive(publisher)
     subscriber = rospy.Subscriber('/mode', Int32,
                                   lambda scan: driver.Stop(scan))
     
 
-    subscriber = rospy.Subscriber('/tb3_1/scan', LaserScan,
+    subscriber = rospy.Subscriber('/tb3_0/scan', LaserScan,
                                     lambda scan: driver.lds_callback(scan))
 
     rospy.spin()

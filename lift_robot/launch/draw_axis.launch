@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="lift_robot" name="draw_aruco" type="draw_aruco.py"/>
+
+</launch>
