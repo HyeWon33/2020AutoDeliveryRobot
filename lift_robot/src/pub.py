@@ -28,7 +28,7 @@ if __name__ == "__main__":
     check_pub=rospy.Publisher('/tb3_1/check_aruco',check_msg,  queue_size=10)
     move_fin_pub=rospy.Publisher("/aruco_move_fin", Bool,  queue_size=10)           
     close_pub=rospy.Publisher("/fin_move_close", Bool,  queue_size=10)   
-    # result_pub=rospy.Publisher("/tb3_1/move_base/result", Int32,  queue_size=10)
+    result_pub=rospy.Publisher("/tb3_1/move_base/result", Int32,  queue_size=10)
     # rospy.Subscriber("/fin_send_mani", Bool, self.fin_send)
     pick_up_pub=rospy.Publisher("/tb3_1/fin_pick_up", Bool,  queue_size=10)
     arrived_pub=rospy.Publisher("/arrived_mani", Bool,  queue_size=10)
@@ -62,19 +62,19 @@ if __name__ == "__main__":
                 print('mode_pub 1')
             if key == 'w':
                 move_fin_pub.publish(True)
-                print('mode_pub 2')
+                print('mode_pub 1')
             if key == 'e':
                 close_pub.publish(True)
-                print('mode_pub 3')
-            # if key == 'r':
-            #     result_pub.publish(3)
-            #     print('mode_pub 1')
+                print('mode_pub 1')
+            if key == 'r':
+                result_pub.publish(3)
+                print('mode_pub 1')
             if key == 't':
                 pick_up_pub.publish(True)
-                print('mode_pub 4')
+                print('mode_pub 1')
             if key == 'y':
                 arrived_pub.publish(True)
-                print('mode_pub 5')
+                print('mode_pub 1')
                 
 
 

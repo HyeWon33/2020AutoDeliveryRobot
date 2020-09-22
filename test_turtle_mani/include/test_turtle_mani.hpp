@@ -48,6 +48,7 @@ private:
 	int wait_bot_count;
 	int release_box_count;
 	int count;
+	int cur_time;
 	int check_mode;
 	int bot_ready;
 	int ar_marker_id;

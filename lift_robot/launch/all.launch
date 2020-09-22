@@ -1,0 +1,11 @@
+<launch>
+
+ <node pkg="lift_robot" name="draw_aruco" type="draw_aruco.py"/>
+
+  <node pkg="lift_robot" name="home" type="home.py"/>
+  <node pkg="lift_robot" name="aruco_move" type="aruco_move.py"/>
+  <node pkg="lift_robot" name="self_drive" type="self_drive.py"/>
+
+
+
+</launch>

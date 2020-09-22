@@ -1,11 +1,9 @@
 #include "test_turtle_mani.hpp"
 
 std::vector<double> kinematic_pose_sub;
-std::vector<double> kinematic_pose_check;
-std::vector<double> temp_position;
 ros::Publisher pick_up_pub_;
+ros::Publisher pick_down_pub_;
 ros::Publisher pub_;
-int cur_time;
 bool arrive_home;
 
 OpenMani::OpenMani()
@@ -156,18 +154,8 @@ void OpenMani::updateRobotState()
 	temp_position.push_back(current_pose.position.x);
 	temp_position.push_back(current_pose.position.y);
 	temp_position.push_back(current_pose.position.z);
-
-	//test_turtle_mani::PoseMsg pose_msg;
-	//pose_msg.cur_x = (float)temp_position[0];
-	//pose_msg.cur_y = (float)temp_position[1];
-	//pose_msg.cur_z = (float)temp_position[2];
 	
 	pub_.publish(current_pose);
-
-	printf("CurMani X: %.2lf Y: %.2lf Z: %.2lf\n",
-		temp_position.at(0),
-		temp_position.at(1),
-		temp_position.at(2));
 }
 
 void OpenMani::demoSequence()
@@ -178,7 +166,7 @@ void OpenMani::demoSequence()
 	std::vector<double> gripper_value;
 	int add_time = 0;
 	std_msgs::Bool fin_pick_up;
-	
+	std_msgs::Bool fin_mani;
 
 	switch(count){
 
@@ -188,7 +176,7 @@ void OpenMani::demoSequence()
 			gripper_value.push_back(0.01);
 			setToolControl(gripper_value);
 			check_mode ++;
-			ROS_INFO("case 0");
+			ROS_INFO("case 0: gripper open");
 		}
 
 		add_time = time(0);
@@ -197,19 +185,16 @@ void OpenMani::demoSequence()
 			
 		break;
 
-	case 1: // home pose
+	case 1: 
 		if(check_mode == 1)
 		{
-			//kinematics_position.push_back( 0.270 );	
-			//kinematics_position.push_back( 0.000 );
-			//kinematics_position.push_back( 0.085 );
-			/*kinematics_position = kinematic_pose_sub.at(0);
-			kinematics_position = kinematic_pose_sub.at(1) + 0.02;
-			kinematics_position = kinematic_pose_sub.at(2);*/
-
-			setTaskSpacePath(kinematic_pose_sub, 2.0);
-			check_mode ++;
-			ROS_INFO("case 0");
+			try
+			{
+				setTaskSpacePath(kinematic_pose_sub, 2.0);
+				check_mode ++;
+				ROS_INFO("case 1: move mani (pick up)");
+			}
+			catch(int a){}
 		}
 
 		add_time = time(0);
@@ -224,7 +209,7 @@ void OpenMani::demoSequence()
 			gripper_value.push_back(-0.01);
 			setToolControl(gripper_value);
 			check_mode ++;
-			ROS_INFO("case 1");
+			ROS_INFO("case 2: gripper close");
 		}
 
 		add_time = time(0);
@@ -236,13 +221,17 @@ void OpenMani::demoSequence()
 	case 3: 
 		if(check_mode == 3)
 		{
-			joint_angle.push_back( 0.000 );
-			joint_angle.push_back( -1.56 );
-			joint_angle.push_back( 1.100 );
-			joint_angle.push_back( 0.800 );
-			setJointSpacePath(joint_angle, 2.0);
-			check_mode ++;
-			ROS_INFO("case 2");
+			try
+			{
+				joint_angle.push_back( 0.000 );
+				joint_angle.push_back( -1.56 );
+				joint_angle.push_back( 1.100 );
+				joint_angle.push_back( 0.800 );
+				setJointSpacePath(joint_angle, 2.0);
+				check_mode ++;
+				ROS_INFO("case 3: move home");
+			}
+			catch(int a){}
 		}
 
 		add_time = time(0);
@@ -255,50 +244,84 @@ void OpenMani::demoSequence()
 		if(arrive_home == false){
 			fin_pick_up.data = true;
 			pick_up_pub_.publish(fin_pick_up);
-		}		
-		
-		if(check_mode == 4 && arrive_home == true)
+		}
+
+		else{
+			if(check_mode == 4 && arrive_home == true)
+			{
+				try
+				{
+					joint_angle.push_back( 2.620 );
+					joint_angle.push_back( 0.420 );
+					joint_angle.push_back( -0.92 );
+					joint_angle.push_back( 1.640 );
+					setJointSpacePath(joint_angle, 2.0);
+					check_mode ++;
+					ROS_INFO("case 4: move base");
+				}
+			catch(int a){}
+			}
+			
+			add_time = time(0);
+			if((add_time-cur_time) >= 7)
+				count ++;
+		}
+
+		break;
+
+	case 5: 
+		if(check_mode == 5)
 		{
 			gripper_value.push_back(0.01);
 			setToolControl(gripper_value);
 			check_mode ++;
-			ROS_INFO("case 4");
+			ROS_INFO("case 5: gripper open");
 		}
 
 		add_time = time(0);
-		if((add_time-cur_time) >= 1){
-			count = 0;
-			check_mode = 0;
-			kinematic_pose_sub.clear();
-		}
+		if((add_time-cur_time) >= 1)
+			count ++;
+
 		break;
+
+	case 6: 
+		if(check_mode == 6)
+		{
+			try
+			{
+				joint_angle.push_back( 0.000 );
+				joint_angle.push_back( -1.56 );
+				joint_angle.push_back( 1.100 );
+				joint_angle.push_back( 0.800 );
+				setJointSpacePath(joint_angle, 2.0);
+				check_mode ++;
+				ROS_INFO("case 6: move home");
+			}
+			catch(int a){}
+		}
+
+		add_time = time(0);
+		if((add_time-cur_time) >= 6){
+			fin_mani.data = true;
+			pick_down_pub_.publish(fin_mani);
+			
+			if((add_time-cur_time) >= 7){
+				count = 0;
+				check_mode = 0;
+				kinematic_pose_sub.clear();
+			}
+		}
+
+		break;
+
 	}
 }
 
 void OpenMani::publishCallback(const ros::TimerEvent&)
 {
-	/*ROS_INFO("%d", kinematic_pose_check.empty());
-	
-	if (!kinematic_pose_check.empty())
-	{
-		
-	}*/
-
 	updateRobotState();
 	if (!kinematic_pose_sub.empty())
-	{
 		demoSequence();
-	}
-
-	//ROS_INFO("check %d", kinematic_pose_sub.empty());
-	//demoSequence();
-}
-
-void CheckCallback(const test_turtle_mani::Msg &msg){
-	
-	kinematic_pose_check.push_back(msg.t_x);
-	kinematic_pose_check.push_back(msg.t_y);
-	kinematic_pose_check.push_back(msg.t_z); 
 }
 
 void PoseCallback(const geometry_msgs::Pose &msg){
@@ -329,13 +352,13 @@ int main(int argc, char **argv){
 	
 	ROS_INFO("11");
 	ros::Timer publish_timer = nh.createTimer(ros::Duration(1), &OpenMani::publishCallback, &OpenMani);
-	ros::Subscriber check_sub_ = nh.subscribe("aruco_msg", 10, CheckCallback);
 	ros::Subscriber sub_ = nh.subscribe("cur_mani_pose", 10, PoseCallback);
 	ros::Subscriber arrive_home_sub_ = nh.subscribe("arrive_home", 10, ArriveHomeCallback);
 
 	pub_ = nh.advertise<geometry_msgs::Pose>("mani_pose", 1000);
 	pick_up_pub_ = nh.advertise<std_msgs::Bool>("fin_pick_up", 1000);
-	
+	pick_down_pub_ = nh.advertise<std_msgs::Bool>("fin_mani", 1000);	
+
 	ROS_INFO("11");
 	//ros::start();
 	while (ros::ok())
