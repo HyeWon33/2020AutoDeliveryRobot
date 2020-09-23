@@ -40,7 +40,7 @@ class SelfDrive:
                 self.goturn(0, -1)
             elif avg[7] < 0.70:
                 self.goturn(0, -1)
-            elif avg[8] < 0.60:
+            elif avg[8] < 0.70:
                 self.goturn(0, -1)
     
 

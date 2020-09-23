@@ -17,7 +17,6 @@ class SelfDrive:
         self.bool = Bool()
         self.mode = 0
         self.real_mode = 0
-        self.count = 0
 
 
 
@@ -28,53 +27,32 @@ class SelfDrive:
         print(self.mode)
 
 
-    def act(self):
-        print("1mode: ", self.mode)
-        if self.mode == 4:
-            rate = rospy.Rate(1)
-            d_rate = rospy.Rate(0.5)
+    def act(self, sleep_rate,q_sleep_rate):
+        if self.mode == 3:
             # start_time = time.time()
 
-            # while time.time() <=start_time+0.4:
-            #     print(time.time(),start_time+0.4)
+            # while time.time() <=start_time+0.4:False)
             #     self.goturn(0.1,0)
             # self.goturn(0,0)
             # self.fin_pub.publish(True)
             # rate = rospy.Rate(0.5)
             
-            rate.sleep()
-            self.goturn(-0.1,0)
-            self.goturn(-0.1,0)
-            self.goturn(-0.1,0)
-            d_rate.sleep()
+            q_sleep_rate.sleep()
+            self.goturn(0.1,0)
+            sleep_rate.sleep()
             self.goturn(0,0)
-            rate.sleep()
+            q_sleep_rate.sleep()
             self.bool.data = True
-            self.fin_pub.publish(self.bool)
-            rate.sleep()
+            for n in range(2):
+                print(n,self.bool.data)
+                self.fin_pub.publish(self.bool)
+                sleep_rate.sleep()
             rospy.loginfo("move_fin")
-            # self.count += 1
-            # rate.sleep()
-                
+            self.mode = 4
 
-    def deeely(self):
-        print("bool:", self.bool)
-        print("count:", self.count)
-        if self.count != 0:
-            
-            self.bool.data = True
-            
-            self.fin_pub.publish(self.bool)
-            
-            # rospy.loginfo("move_fin")
-            
-        elif self.count == 0:
+        elif self.mode != 3:
             self.bool.data = False
-            # self.count =0
-
             self.fin_pub.publish(self.bool)
-
-            
 
 
         
@@ -82,13 +60,11 @@ class SelfDrive:
 
 
     def goturn(self,x,z):
-        rate = rospy.Rate(1)
     
         self.turtle_vel.linear.x = x
         self.turtle_vel.angular.z = z
         #print(a*4)
         self.publisher.publish(self.turtle_vel)
-        rate.sleep()
 
 
         
@@ -97,14 +73,12 @@ def main():
     rospy.init_node('move_close')
     publisher = rospy.Publisher('cmd_vel', Twist, queue_size=1)
     driver = SelfDrive(publisher)
-    
     while not rospy.is_shutdown():
-        # rate = rospy.Rate(1)    
+        rate = rospy.Rate(0.5)
+        q_rate = rospy.Rate(10)
+
         
-        # rate.sleep()
-        driver.act()
-        # rate.sleep()
-        # driver.deeely()
+        driver.act(rate,q_rate)
 
 
 

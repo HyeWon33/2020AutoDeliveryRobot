@@ -89,8 +89,9 @@ bool OpenMani::setJointSpacePath(std::vector<double> joint_angle, double path_ti
 
 	moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 	bool success = (move_group_->plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-	if (success == false)
-	return false;
+	
+	//if (success == false)
+	//return false;
 
 	move_group_->move();
 
@@ -121,8 +122,8 @@ bool OpenMani::setToolControl(std::vector<double> joint_angle)
 	moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 	bool success = (move_group2_->plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
 
-	if (success == false)
-		return false;
+	//if (success == false)
+	//	return false;
 
 	move_group2_->move();
 
@@ -173,10 +174,17 @@ void OpenMani::demoSequence()
 	case 0: 
 		if(check_mode == 0)
 		{
-			gripper_value.push_back(0.01);
-			setToolControl(gripper_value);
-			check_mode ++;
-			ROS_INFO("case 0: gripper open");
+			fin_mani.data = false;
+			pick_down_pub_.publish(fin_mani);
+			try{
+				gripper_value.push_back(0.01);
+				setToolControl(gripper_value);
+				check_mode ++;
+				ROS_INFO("case 0: gripper open");
+			}
+			catch(int a){
+				check_mode = 1;
+			}
 		}
 
 		add_time = time(0);
@@ -194,7 +202,9 @@ void OpenMani::demoSequence()
 				check_mode ++;
 				ROS_INFO("case 1: move mani (pick up)");
 			}
-			catch(int a){}
+			catch(int a){
+				check_mode = 1;
+			}
 		}
 
 		add_time = time(0);
@@ -231,7 +241,9 @@ void OpenMani::demoSequence()
 				check_mode ++;
 				ROS_INFO("case 3: move home");
 			}
-			catch(int a){}
+			catch(int a){
+				check_mode = 3;
+			}
 		}
 
 		add_time = time(0);
@@ -259,12 +271,16 @@ void OpenMani::demoSequence()
 					check_mode ++;
 					ROS_INFO("case 4: move base");
 				}
-			catch(int a){}
+				catch(int a){
+					check_mode = 4;
+				}
 			}
 			
 			add_time = time(0);
-			if((add_time-cur_time) >= 7)
+			if((add_time-cur_time) >= 7){
 				count ++;
+				arrive_home = false;
+			}
 		}
 
 		break;
@@ -272,6 +288,8 @@ void OpenMani::demoSequence()
 	case 5: 
 		if(check_mode == 5)
 		{
+			fin_pick_up.data = false;
+			pick_up_pub_.publish(fin_pick_up);
 			gripper_value.push_back(0.01);
 			setToolControl(gripper_value);
 			check_mode ++;
@@ -297,7 +315,9 @@ void OpenMani::demoSequence()
 				check_mode ++;
 				ROS_INFO("case 6: move home");
 			}
-			catch(int a){}
+			catch(int a){
+				check_mode = 6;
+			}
 		}
 
 		add_time = time(0);
@@ -347,20 +367,19 @@ int main(int argc, char **argv){
 	if ( ! ros::master::check() )
 		return false;
 	
-	//ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle nh("");
 	
 	ROS_INFO("11");
-	ros::Timer publish_timer = nh.createTimer(ros::Duration(1), &OpenMani::publishCallback, &OpenMani);
+	ros::Timer publish_timer = nh.createTimer(ros::Duration(1.3), &OpenMani::publishCallback, &OpenMani);
 	ros::Subscriber sub_ = nh.subscribe("cur_mani_pose", 10, PoseCallback);
 	ros::Subscriber arrive_home_sub_ = nh.subscribe("arrive_home", 10, ArriveHomeCallback);
 
-	pub_ = nh.advertise<geometry_msgs::Pose>("mani_pose", 1000);
-	pick_up_pub_ = nh.advertise<std_msgs::Bool>("fin_pick_up", 1000);
-	pick_down_pub_ = nh.advertise<std_msgs::Bool>("fin_mani", 1000);	
+	pub_ = nh.advertise<geometry_msgs::Pose>("mani_pose", 10);
+	pick_up_pub_ = nh.advertise<std_msgs::Bool>("fin_pick_up", 10);
+	pick_down_pub_ = nh.advertise<std_msgs::Bool>("fin_mani", 10);	
 
 	ROS_INFO("11");
-	//ros::start();
+
 	while (ros::ok())
 	{
 		ros::spinOnce();
