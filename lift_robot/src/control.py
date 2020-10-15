@@ -11,7 +11,7 @@ from move_base_msgs.msg import MoveBaseActionResult
 class Control():
     def __init__(self):
         
-        self.mode_pub = rospy.Publisher('/mode', Int32, queue_size=10) # mode 바꾸기
+        self.mode_pub = rospy.Publisher('mode', Int32, queue_size=10) # mode 바꾸기
         # self.arrive_mani = rospy.Publisher('/arrive_home', Bool, queue_size=10) # mode 바꾸기
         # self.drive_pub = rospy.Publisher('/drive', Int32, queue_size=1) # 
         self.mode = Int32()
@@ -30,13 +30,13 @@ class Control():
 
 
     def sub_msgs(self):
-        rospy.Subscriber('/tb3_0/check_aruco',check_msg, self.ar_check)
-        rospy.Subscriber("/fin_move_close", Bool, self.fin_move)   
+        rospy.Subscriber('check_aruco',check_msg, self.ar_check)
+        rospy.Subscriber("fin_move_close", Bool, self.fin_move)   
         # rospy.Subscriber("/tb3_1/move_base/result", Int32, self.GoalPoseCallback2)
-        rospy.Subscriber("/tb3_0/move_base/result", MoveBaseActionResult, self.GoalPoseCallback)
+        rospy.Subscriber("move_base/result", MoveBaseActionResult, self.GoalPoseCallback)
         # rospy.Subscriber("/fin_send_mani", Bool, self.fin_send)
         # rospy.Subscriber("/tb3_0/fin_pick_up", Bool, self.fin_pick)
-        rospy.Subscriber("/arrived_mani", Bool, self.arrive_home)
+        rospy.Subscriber("arrived_mani", Bool, self.arrive_home)
 
 
     def arrive_home(self,data):
@@ -180,7 +180,7 @@ class Control():
         # self.aruco_move.publish(self.move)
 
 def main():
-    rospy.init_node("contol_tower")
+    rospy.init_node("lift_control")
     con = Control()
     rate = rospy.Rate(10)
     r = rospy.Rate(0.5)

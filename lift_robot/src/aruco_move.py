@@ -21,40 +21,48 @@ def main():
     global mode, count
     rospy.init_node('aruco_move')
     listener = tf.TransformListener()
-    turtle_vel = rospy.Publisher("/tb3_0/move_base_simple/goal", PoseStamped, queue_size=1)
+    turtle_vel = rospy.Publisher("move_base_simple/goal", PoseStamped, queue_size=1)
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
         rate.sleep()
-        rospy.Subscriber('/mode',Int32, ar_check)
+        rospy.Subscriber('mode',Int32, ar_check)
         # print("fist",mode,count)
         
         if (mode == 2  or mode ==3) :
             print("second",mode,count)
             
             try:
-                (trans,rot) = listener.lookupTransform('/map', '/arucopose', rospy.Time(0))
+                (trans,rot) = listener.lookupTransform('/map', 'tb3_0/arucopose', rospy.Time(0))
                 
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                 continue
         # (trans,rot) = listener.lookupTransform('/map', '/arucopose', rospy.Time(0))
             roll, pitch, yaw = tf.transformations.euler_from_quaternion(rot)
             # print(roll, pitch, yaw)
-            ox, oy, oz, ow = tf.transformations.quaternion_from_euler(roll, pitch, yaw+np.pi/2)
+            
 
-            yawMatrix = np.array([
+
+            if mode == 2:
+                ox, oy, oz, ow = tf.transformations.quaternion_from_euler(roll, pitch, yaw+np.pi/2)
+                print("222")
+                yawMatrix = np.array([
                 [math.cos(yaw), -math.sin(yaw), trans[0]],
                 [math.sin(yaw), math.cos(yaw), trans[1]],
                 [0, 0, 1]
-            ])
-            if mode == 2:
-                print("222")
+                ])
                 wMatrix = np.array([
-                    [math.cos(np.pi), -math.sin(np.pi), 0],
-                    [math.sin(np.pi), math.cos(np.pi), -0.5],
+                    [math.cos(0), -math.sin(0), 0],
+                    [math.sin(0), math.cos(0), -0.5],
                     [0, 0, 1]
                 ])
             elif mode == 3:
                 print("333")
+                ox, oy, oz, ow = tf.transformations.quaternion_from_euler(roll, pitch, yaw-np.pi/2)
+                yawMatrix = np.array([
+                [math.cos(yaw), -math.sin(yaw), trans[0]],
+                [math.sin(yaw), math.cos(yaw), trans[1]],
+                [0, 0, 1]
+                ])
                 wMatrix = np.array([
                     [math.cos(0), -math.sin(0), 0],
                     [math.sin(0), math.cos(0), -0.4],

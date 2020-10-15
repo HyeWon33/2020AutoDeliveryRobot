@@ -7,8 +7,6 @@
 #include <std_msgs/Float32.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float32MultiArray.h>
-#include "test_turtle_mani/Msg.h"
-#include "test_turtle_mani/PoseMsg.h"
 #include <sstream>
 
 #include <time.h>
@@ -74,9 +72,6 @@ public:
 	void updateRobotState();
 	bool setJointSpacePath(std::vector<double> joint_angle, double path_time);
 	void init_sub_pub();
-	void Ar_Marker_Callback(const test_turtle_mani::Msg &msg);
-	void Lift_Bot_Callback(const test_turtle_mani::Msg &msg);
-	void Kinematic_Pose_Callback(const test_turtle_mani::Msg &msg);
 
 	void publishCallback(const ros::TimerEvent&);
 	void Wait_Bot();

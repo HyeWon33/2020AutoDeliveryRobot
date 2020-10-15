@@ -6,7 +6,7 @@ from move_base_msgs.msg import MoveBaseActionResult
 from std_msgs.msg import Int32, Bool
 import random
 
-GOAL_POSE = [ 2,  -0.5, 0, 1.0]
+GOAL_POSE = [ 0,  -0.5, 0, 1.0]
 
 
 class Random_Pose():
@@ -35,11 +35,11 @@ class Random_Pose():
         self.nav_goal.pose.orientation.w = pose[3]
         print("ddd",self.start)
 
-        if self.start == 6:
+        if self.start == 5:
             
             self.nav_pub.publish(self.nav_goal)
             self.fin_arive.publish(True)
-        elif self.start != 6:
+        elif self.start != 5:
             self.fin_arive.publish(False)
 
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import rospy
-from lift_robot.msg import aruco_msgs
+from mani_robot.msg import aruco_msgs
 import tf
 import numpy as np
 
 def get_aruco( msg):
     br = tf.TransformBroadcaster()
-    # print(msg.r_x)
+    print(msg.r_x)
     
     angle = np.sqrt(msg.r_x * msg.r_x + msg.r_y * msg.r_y + msg.r_z * msg.r_z)
     cosa = np.cos(angle * 0.5)
@@ -15,13 +15,12 @@ def get_aruco( msg):
     qy = msg.r_y * sina / angle
     qz = msg.r_z * sina / angle
     qw = cosa
-    rospy.loginfo("dd")
 
     br.sendTransform((msg.t_x, msg.t_y, msg.t_z),
                     (qx, qy, qz, qw),
                     rospy.Time.now(),
-                    "tb3_0/arucopose",
-                    "tb3_0/camera_rgb_optical_frame")
+                    "tb3_1/arucopose",
+                    "tb3_1/rgb_test")
 def main():
     rospy.init_node("draw_aruco_axis")
     rospy.Subscriber('aruco_msg', aruco_msgs, get_aruco)
