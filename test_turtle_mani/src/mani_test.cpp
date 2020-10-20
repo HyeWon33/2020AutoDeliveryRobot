@@ -1,6 +1,3 @@
-
-
-
 #include "test_turtle_mani.hpp"
 
 std::vector<double> kinematic_pose_sub;
@@ -216,14 +213,13 @@ void OpenMani::demoSequence()
 				b = setTaskSpacePath(kinematic_pose_sub, 2.0);
 				check_mode ++;
 				ROS_INFO("case 1: move mani (pick up)");
-				ROS_INFO("%d", b);
-                                
+                                kinematic_pose_sub.clear();
 			}
 			else {
 				b = false;
-                kinematic_pose_sub.clear();
-                ROS_INFO("failed");
-            }
+                                //kinematic_pose_sub.clear();
+                                ROS_INFO("failed");
+                       }
 		}
 
 		if (b==true){
@@ -236,12 +232,13 @@ void OpenMani::demoSequence()
 			ROS_INFO("%d", mani_plan);
 			mani_plan.data = true;
 			mani_plan_status_pub_.publish(mani_plan);
-			kinematic_pose_sub.clear();
+			
 			count = 0;
 			check_mode = 0;
+			kinematic_pose_sub.clear();
 			fin_pick_up.data = false;
 			mani_plan.data = false;
-		
+
 			
 			/*if(error_mode == 1){
 				joint_angle.push_back( 0.000 );
@@ -311,9 +308,9 @@ void OpenMani::demoSequence()
 			if(check_mode == MOVE_BASE && arrive_home == true)
 			{
 				joint_angle.push_back( 2.620 );
-				joint_angle.push_back( 0.520 );
-				joint_angle.push_back( -0.76 );
-				joint_angle.push_back( 0.770 );
+				joint_angle.push_back( 0.420 );
+				joint_angle.push_back( -0.92 );
+				joint_angle.push_back( 1.640 );
 				setJointSpacePath(joint_angle, 2.0);
 				check_mode ++;
 				ROS_INFO("case 4: move base");
@@ -428,6 +425,5 @@ int main(int argc, char **argv){
 	}
 	
 }
-
 
 

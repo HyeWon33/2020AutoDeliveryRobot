@@ -17,7 +17,7 @@ def get_aruco( msg):
     qw = cosa
     rospy.loginfo("dd")
 
-    br.sendTransform((msg.t_x, msg.t_y, msg.t_z),
+    br.sendTransform((msg.t_x, msg.t_y+0.03, msg.t_z),
                     (qx, qy, qz, qw),
                     rospy.Time.now(),
                     "tb3_0/arucopose",
@@ -29,4 +29,7 @@ def main():
     rospy.spin()
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass

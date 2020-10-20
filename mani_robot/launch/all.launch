@@ -8,11 +8,11 @@
     <node pkg="mani_robot" name="draw_aruco" type="draw_aruco.py"/>
     <node pkg="mani_robot" name="home" type="home.py"/>
 
-    <!-- <node pkg="mani_robot" name="move_close" type="move_close.py"/> -->
+    <node pkg="mani_robot" name="move_close" type="move_close.py"/>
 
     <node pkg="mani_robot" name="send_mani" type="send_mani.py"/>
     <node pkg="mani_robot" name="aruco_move" type="aruco_move.py"/>
-    <!-- <node pkg="mani_robot" name="random_pose" type="random_pose.py"/> -->
+    <node pkg="mani_robot" name="random_pose" type="random_pose.py"/>
   </group>
 
 
