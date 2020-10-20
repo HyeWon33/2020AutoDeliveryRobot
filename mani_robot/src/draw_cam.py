@@ -112,5 +112,8 @@ def Get_RPY_to_rotation_vector( matrix):
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass
 

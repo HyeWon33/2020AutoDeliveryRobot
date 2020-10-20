@@ -27,14 +27,13 @@
 #include <moveit_msgs/ExecuteTrajectoryActionGoal.h>
 #include <moveit_msgs/MoveGroupActionGoal.h>
 
-#define RELEASE_SAMLL_BOX 1
-#define PICK_UP_LARGE_BOX 2
-#define RELEASE_LARGE_BOX 3
-
-#define DETECT_SMALL_BOX  1
-#define DETECT_LARGE_BOX 2
-#define WAIT_BOT 3
-#define RELEASE_BOX 4
+#define PICK_UP_GRIPPER_OPEN 0
+#define PICK_UP_MANI_MOVE 1
+#define PICK_UP_GRIPPER_CLOSE 2
+#define PICK_UP_MOVE_HOME 3
+#define MOVE_BASE 4
+#define PICK_DOWN_GRIPPER_OPEN 5
+#define PICK_DOWN_MOVE_HOME 6
 
 class OpenMani
 {
@@ -46,11 +45,13 @@ private:
 	int wait_bot_count;
 	int release_box_count;
 	int count;
+	int check;
 	int cur_time;
 	int check_mode;
+	int error_mode;
 	int bot_ready;
+	int start_pose;
 	int ar_marker_id;
-	double moving_time;
 	std_msgs::String current_mani_state;
 	std::string planning_group_name;
 	std::string planning_group_name2;

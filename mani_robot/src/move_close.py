@@ -2,23 +2,19 @@
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
-from std_msgs.msg import Int32, Bool
+from std_msgs.msg import Int32, Bool, String
 import numpy as np
 import time
 
 
 class SelfDrive:
-    def __init__(self, publisher):
-        self.publisher = publisher
-        self.fin_pub = rospy.Publisher("fin_move_close",Bool,queue_size=1)
+    def __init__(self):
+        self.publisher = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+        self.fin_pub = rospy.Publisher("fin_move_close", Bool, queue_size=1)
         self.turtle_vel = Twist()
-        self.subscriber = rospy.Subscriber('mode',Int32,
-                                  lambda msg: self.callback(msg))
         self.bool = Bool()
-        self.mode = 0
+        self.mode = "not"
         self.real_mode = 0
-
-
 
     def callback(self, msg):
 
@@ -26,63 +22,54 @@ class SelfDrive:
 
         print(self.mode)
 
-
-    def act(self, sleep_rate,q_sleep_rate):
-        if self.mode == 3:
-            # start_time = time.time()
-
-            # while time.time() <=start_time+0.4:False)
-            #     self.goturn(0.1,0)
-            # self.goturn(0,0)
-            # self.fin_pub.publish(True)
-            # rate = rospy.Rate(0.5)
-            
-            q_sleep_rate.sleep()
-            self.goturn(0.1,0)
-            sleep_rate.sleep()
-            self.goturn(0,0)
-            q_sleep_rate.sleep()
+    def act(self):
+        rospy.Subscriber('start_move_closed', String, self.callback)
+        rate = rospy.Rate(1)
+        rospy.loginfo(self.mode)
+        if self.mode =="back":
+            for n in range(5):
+                self.goturn(-0.05, 0)
+                rate.sleep()
+            self.goturn(0, 0)
+            rate.sleep()
             self.bool.data = True
-            for n in range(2):
-                print(n,self.bool.data)
-                self.fin_pub.publish(self.bool)
-                sleep_rate.sleep()
+            self.fin_pub.publish(self.bool)
+            rate.sleep()
             rospy.loginfo("move_fin")
-            self.mode = 4
 
-        elif self.mode != 3:
+        if self.mode =="front":
+            for n in range(4):
+                self.goturn(0.05, 0)
+                rate.sleep()
+            self.goturn(0, 0)
+            rate.sleep()
+            self.bool.data = True
+            self.fin_pub.publish(self.bool)
+            rate.sleep()
+            rospy.loginfo("move_fin")
+        elif self.mode =="not":
             self.bool.data = False
             self.fin_pub.publish(self.bool)
 
+    def goturn(self, x, z):
 
-        
-
-
-
-    def goturn(self,x,z):
-    
         self.turtle_vel.linear.x = x
         self.turtle_vel.angular.z = z
-        #print(a*4)
         self.publisher.publish(self.turtle_vel)
 
 
-        
-        
 def main():
     rospy.init_node('move_close')
-    publisher = rospy.Publisher('cmd_vel', Twist, queue_size=1)
-    driver = SelfDrive(publisher)
+
+    driver = SelfDrive()
+    rate = rospy.Rate(1)
     while not rospy.is_shutdown():
-        rate = rospy.Rate(0.5)
-        q_rate = rospy.Rate(10)
-
-        
-        driver.act(rate,q_rate)
-
+        driver.act()
+        rate.sleep()
 
 
 if __name__ == "__main__":
-    main()
-    
-    
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass

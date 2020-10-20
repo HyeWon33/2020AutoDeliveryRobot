@@ -9,7 +9,7 @@ from mani_robot.msg import check_msg
 count = 0
 mode =0
 
-def ar_check(check_aruco):
+def start(check_aruco):
     global  count,mode
 
     mode = check_aruco.data
@@ -22,15 +22,16 @@ def main():
     rospy.init_node('send_mani')
     listener = tf.TransformListener()
     turtle_vel = rospy.Publisher("cur_mani_pose", Pose, queue_size=1)
+    send_mani_pub = rospy.Publisher('send_mani_pub', Bool, queue_size=1) 
     # fin_pub = rospy.Publisher("fin_send_mani", Bool, queue_size=1)
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
         rate.sleep()
-        rospy.Subscriber('mode',Int32, ar_check)
+        rospy.Subscriber('send_mani_pub',Bool, start, queue_size=1)
         # print("fist",aruco_check)
        
             
-        if mode == 4:
+        if mode:
             try:
                 (trans,rot) = listener.lookupTransform('tb3_1/base_link', 'tb3_1/arucopose', rospy.Time(0))
                 print("ddd")
@@ -56,12 +57,14 @@ def main():
             print("x: {}  y:{}  z:{}".format(trans[0], trans[1], trans[2]))
             # if aruco_check  == 2 :
             turtle_vel.publish(nav_goal)
-            # fin_pub.publish(True)
-        # else:
-        #     fin_pub.publish(False)
+            send_mani_pub.publish(False)
+
         rate.sleep()
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass
     
