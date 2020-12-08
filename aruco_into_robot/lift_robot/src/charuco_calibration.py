@@ -4,6 +4,7 @@ import glob
 import os
 import math
 import numpy as np
+import picamera
 from cv2 import aruco
 import rospy
 from multi_robot.msg import aruco_msgs
@@ -53,8 +54,8 @@ def calibrate_charuco(allCorners,allIds,imsize):
     """
     rospy.loginfo("CAMERA CALIBRATION")
 
-    cameraMatrixInit = np.array([[ 2714.,    0., imsize[1]/2],
-                                 [    0., 2714., imsize[0]/2.],
+    cameraMatrixInit = np.array([[ 249.5,    0., imsize[1]/2.],
+                                 [    0., 249.5, imsize[0]/2.],
                                  [    0.,    0.,           1.]])
 
     distCoeffsInit = np.zeros((5,1))
@@ -80,6 +81,9 @@ def detect_marker(mtx, dist):
     rospy.loginfo("START DETECT MARKER")
     os.system('sudo modprobe bcm2835-v4l2')
     cam = cv2.VideoCapture(-1)
+    #cam = picamera.PiCamera()
+    #cam.resolution=(720, 480)
+    #cam.framerate = 30
     param = cv2.aruco.DetectorParameters_create()
     aruco_pub = rospy.Publisher('aruco_msg', aruco_msgs, queue_size=10)
     check_pub = rospy.Publisher('check_aruco', check_msg, queue_size=10)
@@ -91,37 +95,38 @@ def detect_marker(mtx, dist):
             gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             coners, ids, point = cv2.aruco.detectMarkers(gray_frame, aruco_dict, parameters=param)
             if np.all(ids != None):
-                check.check = True
-                if check.check == True:
-                    rvecs, tvecs, objpoint = cv2.aruco.estimatePoseSingleMarkers(coners, 0.035, mtx, dist)
-                    frame = cv2.aruco.drawAxis(frame, mtx, dist, rvecs[0], tvecs[0], 0.035)
-                    rvecs_msg = rvecs.tolist()
-                    tvecs_msg = tvecs.tolist()
-                    rvecs_msg_x = rvecs_msg[0][0][0]
-                    rvecs_msg_y = rvecs_msg[0][0][1]
-                    rvecs_msg_z = rvecs_msg[0][0][2]
-                    tvecs_msg_x = tvecs_msg[0][0][0]
-                    tvecs_msg_y = tvecs_msg[0][0][1]
-                    tvecs_msg_z = tvecs_msg[0][0][2]
-                    aruco.r_x = rvecs_msg_x
-                    aruco.r_y = rvecs_msg_y
-                    aruco.r_z = rvecs_msg_z
-                    aruco.t_x = tvecs_msg_x
-                    aruco.t_y = tvecs_msg_y
-                    aruco.t_z = tvecs_msg_z
-                    aruco.id = int(ids[0])
-                    aruco_pub.publish(aruco)
+                if ids[0] == 2:
+                    check.check = True
+                    if check.check == True:
+                        rvecs, tvecs, objpoint = cv2.aruco.estimatePoseSingleMarkers(coners, 0.04, mtx, dist)
+                        frame = cv2.aruco.drawAxis(frame, mtx, dist, rvecs[0], tvecs[0], 0.04)
+                        rvecs_msg = rvecs.tolist()
+                        tvecs_msg = tvecs.tolist()
+                        rvecs_msg_x = rvecs_msg[0][0][0]
+                        rvecs_msg_y = rvecs_msg[0][0][1]
+                        rvecs_msg_z = rvecs_msg[0][0][2]
+                        tvecs_msg_x = tvecs_msg[0][0][0]
+                        tvecs_msg_y = tvecs_msg[0][0][1]
+                        tvecs_msg_z = tvecs_msg[0][0][2]
+                        aruco.r_x = rvecs_msg_x
+                        aruco.r_y = rvecs_msg_y
+                        aruco.r_z = rvecs_msg_z
+                        aruco.t_x = tvecs_msg_x
+                        aruco.t_y = tvecs_msg_y
+                        aruco.t_z = tvecs_msg_z
+                        aruco.id = int(ids[0])
+                        aruco_pub.publish(aruco)
 
             else:
                 check.check = False
             
             check_pub.publish(check)
             rospy.loginfo(check)
-            frame = cv2.aruco.drawDetectedMarkers(frame, coners, ids)
-            #cv2.imshow("result", frame)
+    #        frame = cv2.aruco.drawDetectedMarkers(frame, coners, ids)
+    #        cv2.imshow("result", frame)
             k = cv2.waitKey(30)
-            #if k == ord('q'):
-             #   break
+    #        if k == ord('q'):
+    #            break
     cam.release()
     #cv2.destroyAllWindows()
 
