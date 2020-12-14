@@ -20,8 +20,8 @@ class Random_Pose():
 
         if self.start:
             print("ddd")
-            GOAL_POSE = [[0.0, 0.8, -1, 1],
-                         [-0.03, -0.7, 0.9, 0.4],
+            GOAL_POSE = [[0.5, -0.4, -0.7, 0.5],
+                         [-0.03, 0.7, 0.9, 0.4],
                          ]
 
             random.shuffle(GOAL_POSE)
