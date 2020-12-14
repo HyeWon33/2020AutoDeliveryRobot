@@ -27,35 +27,88 @@
 
 2.  export TURTLEBOT3_MODEL=waffle_pi 로 변경하기
 
-3. \$ roscore
+3. roscore 실행
 
-4. \$ ssh pi@{로봇 ip} ->
+   ```
+   $ roscore
+   ```
 
-5. \$ roslanch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:=tb3_r set_lidar_frame_id:=tb3_r/base_scan
+4. 각 로봇에 원격접속
 
+   ```
+   $ ssh pi@{로봇 ip}
+   ```
+
+   원격 접속한 터미널 창에서 실행
+
+   ```
+   pi@pi$ roslanch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:=tb3_[숫자] set_lidar_frame_id:=tb3_[숫자]/base_scan
+   
    [INFO] [1597128027.053218]: Setup TF on Odometry [tb3\_[숫자]/odom]
    [INFO] [1597128027.069242]: Setup TF on IMU [tb3\_[숫자]/imu_link]
    [INFO] [1597128027.079824]: Setup TF on MagneticField [tb3\_[숫자]/mag_link]
    [INFO] [1597128027.103283]: Setup TF on JointState [tb3\_[숫자]/base_link]
+   ```
 
-   킬때 이렇게 뜨는지 확인
+   실행 되는 중간에 위와 같이 나오는 지 확인 만약 안나오면 실행 취소후 재실행
 
-7. ssh pi@{로봇 ip} ->
+5. 다른 터미널창에서 다시 원격 접속
 
-8. lift로봇에서는 \$ rosrun lift_robot_aruco charuco_clibration.py , mani 로봇에서는 \$ rosrun mani_robot_aruco charuco_clibration.py
+   ```
+   $ ssh pi@{로봇 ip}
+   ```
 
-9. \$ ROS_NAMESPACE=tb3_1 roslaunch turtlebot3_manipulation_bringup turtlebot3_manipulation_bringup.launch
+   그 후 aruco marker 노드 실행
+   지게(lift)로봇
 
-10. \$ ROS_NAMESPACE=tb3_1 roslaunch turtlebot3_manipulation_moveit_config move_group.launch
+   ```
+   $ rosrun lift_robot_aruco charuco_clibration.py
+   ```
 
-11. \$ ROS_NAMESPACE=tb3_1 rosrun test_turtle_mani test_turtle_mani
+   mani 로봇
 
-12. \$ roslaunch turtlebot3_nps move_base_two.launch
+   ```
+   $ rosrun mani_robot_aruco charuco_clibration.py
+   ```
 
-13. \$ roslaunch turtlebot3_nps navigation_two.launch map_file:={$map.yaml 디렉토리 경로}
+6. 메니퓰레이터 bringup 실행
+
+   ```
+   $ ROS_NAMESPACE=tb3_1 roslaunch turtlebot3_manipulation_bringup turtlebot3_manipulation_bringup.launch
+   ```
+
+7. 메니퓰레이터 move_group 실행
+
+   ```
+   $ ROS_NAMESPACE=tb3_1 roslaunch turtlebot3_manipulation_moveit_config move_group.launch
+   ```
+
+8. 메니 동작 노드 실행
+
+   ```
+   $ ROS_NAMESPACE=tb3_1 rosrun test_turtle_mani test_turtle_mani
+   ```
+
+9. 두대의 move_base 동시 실행 launch 실행
+
+   ```
+   $ roslaunch turtlebot3_nps move_base_two.launch
+   ```
+
+10. nvigation 두대 동시 실행
+
+    ```
+    $ roslaunch turtlebot3_nps navigation_two.launch map_file:={$map.yaml 디렉토리 경로}
+    ```
+
     rviz가 켜지는 확인하기
     로봇들의 표시가 잘 나오는지 확인하기
 
-14. \$ roslaunch mani_robot all.launch
+11. 메니퓰레이터 와 지게 control launch 파일 실행
 
-15. \$ roslaunch lift_robot all.launch
+    ````
+    $ roslaunch mani_robot all.launch
+    $ roslaunch lift_robot all.launch
+    ````
+
+    
