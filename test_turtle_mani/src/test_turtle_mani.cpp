@@ -176,6 +176,7 @@ void OpenMani::demoSequence()
 	std::vector<double> kinematics_orientation;
 	std::vector<double> gripper_value;
 	int add_time = 0;
+	int fin = 0;
 	std_msgs::Bool fin_pick_up;
 	std_msgs::Bool fin_mani;
 	std_msgs::Bool mani_plan;
@@ -214,25 +215,21 @@ void OpenMani::demoSequence()
 		{
 			if (!kinematic_pose_sub.empty()){
 				b = setTaskSpacePath(kinematic_pose_sub, 2.0);
-				check_mode ++;
+				//check_mode ++;
 				ROS_INFO("case 1: move mani (pick up)");
 				ROS_INFO("%d", b);
-                                
+				add_time = time(0);
+				count ++;                 
 			}
-			else {
-				b = false;
-                kinematic_pose_sub.clear();
-                ROS_INFO("failed");
-            }
 		}
 
-		if (b==true){
-			add_time = time(0);
-			if((add_time-cur_time) >= 6)
-				count ++;
-		}
+		// if (b==true){
+		// 	add_time = time(0);
+		// 	if((add_time-cur_time) >= 1)
+		// 		count ++;                 
+		// }
 
-		else if (b==false){
+		if (b==false){
 			ROS_INFO("%d", mani_plan);
 			mani_plan.data = true;
 			mani_plan_status_pub_.publish(mani_plan);
@@ -241,31 +238,18 @@ void OpenMani::demoSequence()
 			check_mode = 0;
 			fin_pick_up.data = false;
 			mani_plan.data = false;
-		
-			
-			/*if(error_mode == 1){
-				joint_angle.push_back( 0.000 );
-				joint_angle.push_back( -1.56 );
-				joint_angle.push_back( 1.100 );
-				joint_angle.push_back( 0.500 );
-				setJointSpacePath(joint_angle, 2.0);
-				error_mode ++;
-				ROS_INFO("case 1: move mani --error--");
-			}
-				
-			add_time = time(0);
-			if((add_time-cur_time) >= 6){
-				count = 0;
-				check_mode = 0;
-				kinematic_pose_sub.clear();
-				fin_pick_up.data = false;
-				mani_plan.data = false;
-				mani_error_plan.data = true;
-				mani_error_pub_.publish(mani_error_plan);
-			}*/
 		}
 		break;
+
 	case 2:
+
+		add_time = time(0);
+		if((add_time-cur_time) >= 6){
+			check_mode ++;
+			count ++;
+		}
+		
+
 		if(check_mode == PICK_UP_GRIPPER_CLOSE)
 		{
 			gripper_value.push_back(-0.01);
@@ -273,12 +257,7 @@ void OpenMani::demoSequence()
 			check_mode ++;
 			ROS_INFO("case 2: gripper close");
 		}
-
 	
-		add_time = time(0);
-		if((add_time-cur_time) >= 1)
-			count ++;
-			
 		break;
 
 	case 3: 
@@ -288,27 +267,34 @@ void OpenMani::demoSequence()
 			joint_angle.push_back( -1.00 );
 			joint_angle.push_back( 0.307 );
 			joint_angle.push_back( 0.700 );
-			setJointSpacePath(joint_angle, 2.0);
-			check_mode ++;
+			b = setJointSpacePath(joint_angle, 2.0);
+			count ++;
 			ROS_INFO("case 3: move home");	
 		}
-	
-		add_time = time(0);
-		if((add_time-cur_time) >= 6)
-			count ++;
-	
-		break;
-	
+
+		if (b==false){
+			check_mode = PICK_UP_MOVE_HOME;
+		}	
+
+		break;	
 
 	case 4: 
-		if(arrive_home == false){
+
+		if(check_mode == PICK_UP_MOVE_HOME){
+			add_time = time(0);
+			if((add_time-cur_time) >= 6){
+				check_mode ++;
+			}
+		}
+
+		else if(arrive_home == false){
 			fin_pick_up.data = true;
 			pick_up_pub_.publish(fin_pick_up);
 			ROS_INFO("wait arrive home");
 		}
 
-		else{
-			if(check_mode == MOVE_BASE && arrive_home == true)
+		else if(arrive_home == true && check_mode != PICK_UP_MOVE_HOME ) {
+			if(check_mode == MOVE_BASE)
 			{
 				joint_angle.push_back( 2.620 );
 				joint_angle.push_back( 0.520 );
@@ -323,13 +309,13 @@ void OpenMani::demoSequence()
 			if((add_time-cur_time) >= 7){
 				count ++;
 				arrive_home = false;
-			}
-		
+			}		
 		}
 
 		break;
 
 	case 5: 
+
 		if(check_mode == PICK_DOWN_GRIPPER_OPEN)
 		{
 			fin_pick_up.data = false;
