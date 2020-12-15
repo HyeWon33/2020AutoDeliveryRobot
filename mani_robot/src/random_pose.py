@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import rospy
 from geometry_msgs.msg import PoseStamped
@@ -6,6 +7,9 @@ from move_base_msgs.msg import MoveBaseActionResult
 from std_msgs.msg import Int32, Bool
 import random
 
+"""
+랜덤하게 좌표를 전송하여 로봇을 움직이는 노드
+"""
 
 class Random_Pose():
     def __init__(self):
@@ -17,14 +21,14 @@ class Random_Pose():
         self.goal_status = 0
         self.start = 0
 
-    def publish_middle_goal(self, rate):
+    def random_pose(self, rate):
 
-        rospy.Subscriber('randome_dst_pub', Bool, self.Start)
+        rospy.Subscriber('random_dst_pub', Bool, self.Start)
 
         if self.start:
+            # 상황에 맞게 변경 필요
             GOAL_POSE = [[0.2, -0.87, 0.92, -0.08],
-                         [0.28, 0.7, -0.7, 0.70],
-                         ]
+                         [0.28, 0.7, -0.7, 0.70]]
 
             random.shuffle(GOAL_POSE)
             # print(GOAL_POSE)
@@ -47,16 +51,13 @@ class Random_Pose():
     def Start(self, msg):
         self.start = msg.data
 
-    def GoalPoseCallback(self, data):
-        self.goal_status = data.status.status
-
 
 def main():
     rospy.init_node("ranbom_pose")
     rp = Random_Pose()
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
-        rp.publish_middle_goal(rate)
+        rp.random_pose(rate)
         rate.sleep()
 
 

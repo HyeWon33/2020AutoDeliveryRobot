@@ -1,11 +1,14 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import rospy
 from geometry_msgs.msg import PoseStamped
 from move_base_msgs.msg import MoveBaseActionResult
 from std_msgs.msg import Int32, Bool
 import random
-
+"""
+랜덤하게 좌표를 전송하여 로봇을 움직이는 노드
+"""
 
 class Random_Pose():
     def __init__(self):
@@ -20,6 +23,7 @@ class Random_Pose():
 
         if self.start:
             print("ddd")
+            # 상황에 맞게 변경 필요
             GOAL_POSE = [[0.5, -0.4, -0.7, 0.5],
                          [-0.03, 0.7, 0.9, 0.4],
                          ]
@@ -42,7 +46,6 @@ class Random_Pose():
 
     def Start(self, msg):
         self.start = msg.data
-
 
 
 def main():

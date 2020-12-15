@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
@@ -6,7 +7,10 @@ from std_msgs.msg import Int32, Bool, String
 import numpy as np
 import time
 
+"""
+로봇을 일정 거리 전진, 후진 하기 위한 노드
 
+"""
 class SelfDrive:
     def __init__(self):
         self.publisher = rospy.Publisher('cmd_vel', Twist, queue_size=10)
@@ -26,32 +30,32 @@ class SelfDrive:
         rospy.Subscriber('start_move_closed', String, self.callback)
         rate = rospy.Rate(1)
         rospy.loginfo(self.mode)
-        if self.mode =="first":
+        if self.mode == "first":
             for n in range(5):
-                self.goturn(-0.1, 0)
+                self.move(-0.1, 0)
                 rate.sleep()
-            self.goturn(0, 0)
+            self.move(0, 0)
             rate.sleep()
             self.bool.data = True
             self.fin_pub.publish(self.bool)
             rate.sleep()
             rospy.loginfo("move_fin")
 
-        if self.mode =="secend":
+        if self.mode == "secend":
             for n in range(4):
-                self.goturn(0.1, 0)
+                self.move(0.1, 0)
                 rate.sleep()
-            self.goturn(0, 0)
+            self.move(0, 0)
             rate.sleep()
             self.bool.data = True
             self.fin_pub.publish(self.bool)
             rate.sleep()
             rospy.loginfo("move_fin")
-        elif self.mode =="not":
+        elif self.mode == "not":
             self.bool.data = False
             self.fin_pub.publish(self.bool)
 
-    def goturn(self, x, z):
+    def move(self, x, z):
 
         self.turtle_vel.linear.x = x
         self.turtle_vel.angular.z = z

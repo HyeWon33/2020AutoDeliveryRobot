@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import rospy
 import sys, select, tty, termios
 from std_msgs.msg import Int32, Bool
@@ -7,6 +8,14 @@ from geometry_msgs.msg import Pose, Quaternion, Point, PoseStamped
 from mani_robot.msg import check_msg
 from move_base_msgs.msg import MoveBaseActionResult
 import numpy as np
+
+"""
+Publisher test 노드 
+"""
+
+
+
+
 def getKey():
     tty.setraw(sys.stdin.fileno())
     rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
@@ -22,7 +31,6 @@ def getKey():
 if __name__ == "__main__":
 
     settings = termios.tcgetattr(sys.stdin)
-
     rospy.init_node('test_pub')
     mode_pub = rospy.Publisher('mode', Int32, queue_size=10)
     check_pub=rospy.Publisher('check_aruco',check_msg,  queue_size=10)
