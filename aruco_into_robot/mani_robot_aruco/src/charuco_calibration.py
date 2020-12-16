@@ -8,10 +8,14 @@ from cv2 import aruco
 import rospy
 from multi_robot.msg import aruco_msgs
 from multi_robot.msg import check_msg
+
 aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
 board = aruco.CharucoBoard_create(7, 5, 1, .8, aruco_dict)
+"""
+aruco 마커 검출 노드
+"""
 
-
+# 미리 찍어놓은 이미지 (camera_cla_img)를 가지고 왜곡률 등을 계산하는 함수\
 def cal():
     """
     Charuco base pose estimation.
@@ -30,52 +34,55 @@ def cal():
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray, aruco_dict)
 
-        if len(corners)>0:
+        if len(corners) > 0:
             # SUB PIXEL DETECTION
             for corner in corners:
                 cv2.cornerSubPix(gray, corner,
-                                 winSize = (3,3),
-                                 zeroZone = (-1,-1),
-                                 criteria = criteria)
-            res2 = cv2.aruco.interpolateCornersCharuco(corners,ids,gray,board)
-            if res2[1] is not None and res2[2] is not None and len(res2[1])>3 and decimator%1==0:
+                                 winSize=(3, 3),
+                                 zeroZone=(-1, -1),
+                                 criteria=criteria)
+            res2 = cv2.aruco.interpolateCornersCharuco(corners, ids, gray, board)
+            if res2[1] is not None and res2[2] is not None and len(res2[1]) > 3 and decimator % 1 == 0:
                 allCorners.append(res2[1])
                 allIds.append(res2[2])
 
-        decimator+=1
+        decimator += 1
 
     imsize = gray.shape
-    return allCorners,allIds,imsize
+    return allCorners, allIds, imsize
 
-def calibrate_charuco(allCorners,allIds,imsize):
+
+#  charuco calibration 함수
+def calibrate_charuco(allCorners, allIds, imsize):
     """
     Calibrates the camera using the dected corners.
     """
     rospy.loginfo("CAMERA CALIBRATION")
 
-    cameraMatrixInit = np.array([[ 2714.,    0., imsize[1]/2],
-                                 [    0., 2714., imsize[0]/2.],
-                                 [    0.,    0.,           1.]])
+    cameraMatrixInit = np.array([[2714., 0., imsize[1] / 2],
+                                 [0., 2714., imsize[0] / 2.],
+                                 [0., 0., 1.]])
 
-    distCoeffsInit = np.zeros((5,1))
+    distCoeffsInit = np.zeros((5, 1))
     flags = (cv2.CALIB_USE_INTRINSIC_GUESS + cv2.CALIB_RATIONAL_MODEL + cv2.CALIB_FIX_ASPECT_RATIO)
-    #flags = (cv2.CALIB_RATIONAL_MODEL)
+    # flags = (cv2.CALIB_RATIONAL_MODEL)
     (ret, camera_matrix, distortion_coefficients0,
      rotation_vectors, translation_vectors,
      stdDeviationsIntrinsics, stdDeviationsExtrinsics,
      perViewErrors) = cv2.aruco.calibrateCameraCharucoExtended(
-                      charucoCorners=allCorners,
-                      charucoIds=allIds,
-                      board=board,
-                      imageSize=imsize,
-                      cameraMatrix=cameraMatrixInit,
-                      distCoeffs=distCoeffsInit,
-                      flags=flags,
-                      criteria=(cv2.TERM_CRITERIA_EPS & cv2.TERM_CRITERIA_COUNT, 10000, 1e-9))
+        charucoCorners=allCorners,
+        charucoIds=allIds,
+        board=board,
+        imageSize=imsize,
+        cameraMatrix=cameraMatrixInit,
+        distCoeffs=distCoeffsInit,
+        flags=flags,
+        criteria=(cv2.TERM_CRITERIA_EPS & cv2.TERM_CRITERIA_COUNT, 10000, 1e-9))
     rospy.loginfo("END CALIBRATION")
     return ret, camera_matrix, distortion_coefficients0, rotation_vectors, translation_vectors
 
 
+# marker 검출 함수
 def detect_marker(mtx, dist):
     rospy.loginfo("START DETECT MARKER")
     os.system('sudo modprobe bcm2835-v4l2')
@@ -87,7 +94,7 @@ def detect_marker(mtx, dist):
     check = check_msg()
     if cam.isOpened():
         while not rospy.is_shutdown():
-        #while True:
+            # while True:
             _, frame = cam.read()
             gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             coners, ids, point = cv2.aruco.detectMarkers(gray_frame, aruco_dict, parameters=param)
@@ -116,16 +123,16 @@ def detect_marker(mtx, dist):
 
             else:
                 check.check = False
-            
+
             check_pub.publish(check)
             rospy.loginfo(check)
             frame = cv2.aruco.drawDetectedMarkers(frame, coners, ids)
             cv2.imshow("result", frame)
             k = cv2.waitKey(30)
-      #      if k == ord('q'):
-     #           break
+    #      if k == ord('q'):
+    #           break
     cam.release()
-    #cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()
 
 
 def main():
@@ -136,6 +143,5 @@ def main():
     detect_marker(mtx, dist)
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     main()
-

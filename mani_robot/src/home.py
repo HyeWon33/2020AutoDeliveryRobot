@@ -16,7 +16,6 @@ home의 좌표 전송
 GOAL_POSE = [-0.75, 0.0, 0.051, 0.998]
 
 
-
 class Home_Pose():
     def __init__(self):
         self.nav_pub = rospy.Publisher("move_base_simple/goal", PoseStamped, queue_size=10)
@@ -35,7 +34,7 @@ class Home_Pose():
 
         if self.start:
             pose = GOAL_POSE
-            self.nav_goal.header.frame_id = 'map' # map을 기준으로 한다.
+            self.nav_goal.header.frame_id = 'map'  # map을 기준으로 한다.
             self.nav_goal.pose.position.x = pose[0]
             self.nav_goal.pose.position.y = pose[1]
             self.nav_goal.pose.orientation.z = pose[2]

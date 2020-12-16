@@ -7,7 +7,7 @@ import numpy as np
 
 
 """
-aruco 마커의 좌표를 받아와 rqb 좌표계에서 본 aruco 위치 tf를 구성
+aruco 마커의 좌표를 받아와 rgb 좌표계에서 본 aruco 위치 tf를 구성
 """
 def get_aruco(msg):
     # tf broadcaster 생성

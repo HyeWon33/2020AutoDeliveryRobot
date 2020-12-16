@@ -1,8 +1,9 @@
 <launch>
-
+  <!--모든 노드들 실행  -->
   <group ns="tb3_1">
+    <!--map에서의 camera의 위치를 그리는 노드-->
     <node pkg="mani_robot" name="draw_cam" type="draw_cam.py"/>
-
+    <!--map에서의 camera rgb의 위치를 그리는 노드-->
     <node pkg="mani_robot" name="draw_rgb" type="draw_rgb.py"/>
 
     <node pkg="mani_robot" name="draw_aruco" type="draw_aruco.py"/>
