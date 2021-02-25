@@ -9,6 +9,10 @@ import random
 
 """
 랜덤하게 좌표를 전송하여 로봇을 움직이는 노드
+GOAL_POSE에 저장된 좌표(position(x,y), oriantation(z,w))
+GOAL_POSE의 data를 랜덤하게 섞은 후 첫번째 data를 사용
+map이 클수록 여러개의 data를 사용 가능
+
 """
 
 class Random_Pose():

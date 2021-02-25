@@ -101,3 +101,30 @@
 
  ex) turtlebot3 -> turtlebot3_bringup(turtlebot3 core 및 lidar 키는 패키지 포함)
 
+### repositorie 내의 dirctory 설명
+
+#### aruco_into_robot
+
+내부에 lift_robot_aruco,mani_robot_aruco 패키지가 있습니다. 각각 이름의 robot에 받아서 build합니다.
+
+각 패키지는 aruco 마커를 확인하는 패키지입니다.
+
+#### lift_robot
+
+lift robot을 동작시키 위한 패키지입니다.
+
+#### mani_robot
+
+mani robot을 동작시키 위한 패키지입니다.
+
+#### test_turtle_mani
+
+manipulator를 동작시키 위한 패키지입니다.
+
+#### turtlebot3_nps
+
+두대의 로봇을 동시에 동작 시키기 위해 사용 되는 패키지입니다.
+
+해당 패키지에서 move_base_two.launch와  navigation_two.launch를 실행 시킵니다.
+
+navigation_two.launch을 실행 시킬때는 map_file을 지정 해줘야합니다.

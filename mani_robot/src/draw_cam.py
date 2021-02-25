@@ -9,8 +9,16 @@ import math
 
 """
 카메라센서의 tf를 생성
-메니의 좌표를 받아오고 메니의 좌표로부터 카메라까지의 떨어진 거리를 입력하여 생성 
-(메니의 좌표는 집게 중앙을 기준으로 함)
+base_link에서 mani gripper(gripper의 중앙)의 좌표를 받아오고
+mani gripper에서 카메라의 좌표를 받아와 transformation 생성
+transformation 생성과정
+A,B의 position oriantation data를 생성 혹은 받아와
+A,B의 transration, rotation matrix 생성
+transration, rotation matrix 으로 각각의 transformation 생성
+-> T^{carmera}_{mani_gripper} , T^{mani_gripper}_{base_link}
+두 matrix 를 dot 연산을 통해 T^{carmera}_{base_link}를 구한다.
+그리고 T^{carmera}_{base_link)의 tf 생성
+
 """
 def main():
     rospy.init_node("draw_cam")

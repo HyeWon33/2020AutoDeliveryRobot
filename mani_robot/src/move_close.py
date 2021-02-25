@@ -9,6 +9,8 @@ import time
 
 """
 로봇을 일정 거리만큼 이동(전진,후진)
+front 를 받으면 전진
+back을 받으면 후진
 """
 
 
@@ -33,6 +35,7 @@ class SelfDrive:
         rospy.loginfo(self.mode)
         # 후진(약25cm)
         if self.mode =="back":
+            # 5초간 0.05의 속도로 후진
             for n in range(5):
                 self.move(-0.05, 0)
                 rate.sleep()
@@ -44,22 +47,25 @@ class SelfDrive:
             rospy.loginfo("move_fin")
         # 전진(약20cm)
         if self.mode =="front":
+            # 4초간 0.05의 속도로 전진
             for n in range(4):
                 self.move(0.05, 0)
-                rate.sleep()
+                rate.sleep() # 1hz
+
             self.move(0, 0)
-            rate.sleep()
+            rate.sleep() # 1hz
             self.bool.data = True
             self.fin_pub.publish(self.bool)
-            rate.sleep()
+            rate.sleep() # 1hz
             rospy.loginfo("move_fin")
         # 노드 휴식
         elif self.mode =="not":
             self.bool.data = False
             self.fin_pub.publish(self.bool)
 
-    # x : 전진속도 , z : 회전속도
+    # 속도 pub 함수 x : 전진속도 , z : 회전속도
     def move(self, x, z):
+        
 
         self.turtle_vel.linear.x = x
         self.turtle_vel.angular.z = z

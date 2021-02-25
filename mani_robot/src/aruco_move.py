@@ -13,8 +13,8 @@ aruco_check = False
 
 """
 aruco 마커가 감지가 됬을 경우 map에서의 marker 좌표와
-180도 회전과 y축으로 45cm 후진 transformation을 구하여 연산을 진행을하여
-aruco 마커의 전방 45cm에 로봇이 위치하게 해주는 노드
+180도 회전과 y축으로 45cm 후진 transformation을 구하여 연산을 진행을 하여
+aruco marker가 로봇의 전방 45cm에 위치 되도록 좌표를 구하여 보내는 노드
 """
 
 def main():
@@ -81,9 +81,9 @@ def send_aruco_pose(trans, rot):
         [math.sin(np.pi), math.cos(np.pi), -0.45],
         [0, 0, 1]
     ])
-    m = np.dot(yaw_matrix, w_matrix)
-    x, y = m[:2, 2]
-    cosine, sine = m[:2, 0]
+    m = np.dot(yaw_matrix, w_matrix) # 3x3행렬
+    x, y = m[:2, 2]   # 해당 행렬의 3열의 1,2행을 받아온다
+    cosine, sine = m[:2, 0]  # 해당 행렬의 1행의 1,2열 받아온다
     theta = np.arctan2(sine, cosine)
 
     # map에서의 aruco 마터 위치 (2차원) 전송
