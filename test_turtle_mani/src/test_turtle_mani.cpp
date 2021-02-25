@@ -1,6 +1,4 @@
 
-
-
 #include "test_turtle_mani.hpp"
 
 std::vector<double> kinematic_pose_sub;
@@ -184,7 +182,7 @@ void OpenMani::demoSequence()
 	bool b;
 
 	switch(count){
-
+    // gripper 열기(초기 실행) 
 	case 0: 
 		if(check_mode == PICK_UP_GRIPPER_OPEN)
 		{
@@ -209,7 +207,7 @@ void OpenMani::demoSequence()
 			}
 		}	
 		break;
-
+	// aruco까지 접근
 	case 1: 
 		if(check_mode == PICK_UP_MANI_MOVE)
 		{
@@ -240,7 +238,7 @@ void OpenMani::demoSequence()
 			mani_plan.data = false;
 		}
 		break;
-
+	// gripper 닫기
 	case 2:
 
 		add_time = time(0);
@@ -259,7 +257,7 @@ void OpenMani::demoSequence()
 		}
 	
 		break;
-
+	// 원위치로 복귀
 	case 3: 
 		if(check_mode == PICK_UP_MOVE_HOME)
 		{
@@ -277,7 +275,7 @@ void OpenMani::demoSequence()
 		}	
 
 		break;	
-
+	// home에 도착할때까지 기다리다 도착하면 후방으로 이동
 	case 4: 
 
 		if(check_mode == PICK_UP_MOVE_HOME){
@@ -313,7 +311,7 @@ void OpenMani::demoSequence()
 		}
 
 		break;
-
+	// gripper open
 	case 5: 
 
 		if(check_mode == PICK_DOWN_GRIPPER_OPEN)
@@ -333,7 +331,7 @@ void OpenMani::demoSequence()
 
 		break;
 		
-
+	// 원위치로 복귀
 	case 6: 
 		if(check_mode == PICK_DOWN_MOVE_HOME)
 		{

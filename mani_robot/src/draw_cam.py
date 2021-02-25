@@ -14,25 +14,26 @@ import math
 """
 def main():
     rospy.init_node("draw_cam")
-    rospy.Subscriber('mani_pose', Pose, get_mani_pose)
+    rospy.Subscriber('mani_pose', Pose, get_mani_pose) # mani 노드에서부터 로봇(base_link)에서 본 mani 좌표를 sub하게됨
     rospy.loginfo_once("CAM_OK")
     rospy.spin()
 
 
 def get_mani_pose(msg):
-    mani_pose = np.array([[msg.position.x, msg.position.y, msg.position.z]])
-    mani_orientation = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
-    r, p, y = tf.transformations.euler_from_quaternion(mani_orientation)
-    mani_3d_matrix = make_3d_matrix(mani_pose, mani_orientation)
-    cam_rgb_pose = np.array([[-0.06, 0, 0.04]])
-    cam_rgb_rpy = [0, 0, 0]
-    cam_rotation = create_rotation_matrix(cam_rgb_rpy)
-    cam_3d_matrix = make_transformation_matrix(cam_rotation, cam_rgb_pose.T)
-    m_c_matrix = np.dot(mani_3d_matrix, cam_3d_matrix)
-    t, q = get_rpt_to_rotation_vector(m_c_matrix)
-    br = tf.TransformBroadcaster()
-    br.sendTransform(t, q, rospy.Time.now(), "tb3_1/cam_test", "tb3_1/base_link")
-    br.sendTransform((msg.position.x, msg.position.y, msg.position.z),
+    mani_pose = np.array([[msg.position.x, msg.position.y, msg.position.z]]) # mani의 위치정보
+    mani_orientation = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w] # mani의 회전정보(quaternion)
+    r, p, y = tf.transformations.euler_from_quaternion(mani_orientation) # 회전정보를 euler로 변환
+    mani_3d_matrix = make_3d_matrix(mani_pose, mani_orientation)    # mani의 transformation matrix 생성
+    cam_rgb_pose = np.array([[-0.06, 0, 0.04]])                     # mani의 위치(gripper의 중심)에서의 카메라 위치
+    cam_rgb_rpy = [0, 0, 0]                                         # 카메라의 위전
+    cam_rotation = create_rotation_matrix(cam_rgb_rpy)              # 카메라의 rotation matrix 생성
+    cam_3d_matrix = make_transformation_matrix(cam_rotation, cam_rgb_pose.T) # 카메라의 transformation matrix 생성
+    m_c_matrix = np.dot(mani_3d_matrix, cam_3d_matrix)              # T(mani) * T(camera) = 로봇에서(base_link)에서 본 카메라 좌표
+    t, q = get_rpt_to_rotation_vector(m_c_matrix)                   # 로봇에서(base_link)에서 본 카메라 좌표에서 transration, rotation을 추출
+    br = tf.TransformBroadcaster()                                  # tf broadcaster 생성
+    br.sendTransform(t, q, rospy.Time.now(), "tb3_1/cam_test", "tb3_1/base_link") # base_link에서 카메라의 tf 생성
+    # base_link에서 mani의 tf 생성
+    br.sendTransform((msg.position.x, msg.position.y, msg.position.z),      
                      (msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w),
                      rospy.Time.now(),
                      "tb3_1/mani_pose",

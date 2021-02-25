@@ -18,7 +18,7 @@ aruco 마커의 전방 45cm에 로봇이 위치하게 해주는 노드
 """
 
 def main():
-    # aruco_check 는 aruco 감지 확인(bool)
+    # aruco_check 는 aruco 유무 확인(bool)
     global aruco_check, count
     rospy.init_node('aruco_move')
     # transformlistener 불러오기
@@ -49,7 +49,7 @@ def main():
 # aruco subscriber callback 함수
 def start(check_aruco):
     global count, aruco_check
-    # 받아온 값 global로 저장
+    # 받아온 data global로 저장
     aruco_check = check_aruco.data
     # print("sub",aruco_check)
 

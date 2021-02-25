@@ -58,6 +58,7 @@ class SelfDrive:
             self.bool.data = False
             self.fin_pub.publish(self.bool)
 
+    # x : 전진속도 , z : 회전속도
     def move(self, x, z):
 
         self.turtle_vel.linear.x = x
