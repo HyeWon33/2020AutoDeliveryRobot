@@ -13,7 +13,7 @@ def get_aruco(msg):
     # tf broadcaster 생성
     br = tf.TransformBroadcaster()
 
-    # aruco 에서 받아온 rotation 값들로 quaternion 계산
+    # aruco 에서 받아온 rotation으로 quaternion 계산
     angle = np.sqrt(msg.r_x * msg.r_x + msg.r_y * msg.r_y + msg.r_z * msg.r_z)
     cosa = np.cos(angle * 0.5)
     sina = np.sin(angle * 0.5)

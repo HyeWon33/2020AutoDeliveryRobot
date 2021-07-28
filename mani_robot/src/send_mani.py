@@ -13,6 +13,8 @@ mode = 0
 
 """
 mani 가 물체에 접근을 할 수 있게 mani에서의 물체 위치 전송
+base_link에서 본 aruco의 위치를 얻어와서 mani를 움직이는 노드로 전송
+control에는 mani에 좌표를 보냈다는 msg를 pub
 """
 
 
